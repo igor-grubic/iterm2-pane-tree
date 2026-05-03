@@ -1,0 +1,9 @@
+iterm2env/
+iterm2env-*/
+__pycache__/
+*.pyc
+.DS_Store
+*.egg-info/
+.mypy_cache/
+.ruff_cache/
+iterm_workflow/extensions.json

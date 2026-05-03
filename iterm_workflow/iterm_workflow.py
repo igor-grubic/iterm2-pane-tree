@@ -1,0 +1,73 @@
+#!/usr/bin/env python3
+"""iTerm2 Workflow toolbelt — entry point.
+
+Runs as a daemon under iTerm2 AutoLaunch. Registers a custom toolbelt webview
+that loads from a local stdlib HTTP server, then subscribes to layout-change
+notifications and refreshes a cached tree snapshot. The webview polls
+/api/tree to render the live tree.
+"""
+
+from __future__ import annotations
+
+import asyncio
+import logging
+import sys
+from pathlib import Path
+
+# Make the bundled package importable when iTerm2 launches the script via path.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import iterm2  # noqa: E402
+
+from extensions import _loader as ext_loader  # noqa: E402
+from server import http as http_server  # noqa: E402
+
+PORT = 9876
+HOST = "127.0.0.1"
+TOOL_NAME = "Worktree"
+TOOL_IDENTIFIER = "com.igrubic.iterm-workflow"
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+)
+log = logging.getLogger("iterm_workflow")
+
+
+async def main(connection: iterm2.Connection) -> None:
+    app = await iterm2.async_get_app(connection)
+    loop = asyncio.get_running_loop()
+    registry = ext_loader.load()
+    state = http_server.State(connection, app, loop, registry)
+
+    await state.refresh()
+    http_server.start_server_thread(state, HOST, PORT)
+
+    async def _periodic_refresh() -> None:
+        while True:
+            await asyncio.sleep(1)
+            await state.refresh()
+
+    asyncio.create_task(_periodic_refresh())
+
+    await iterm2.tool.async_register_web_view_tool(
+        connection,
+        display_name=TOOL_NAME,
+        identifier=TOOL_IDENTIFIER,
+        reveal_if_already_registered=True,
+        url=f"http://{HOST}:{PORT}/",
+    )
+    log.info("registered toolbelt %r at http://%s:%d/", TOOL_NAME, HOST, PORT)
+
+    async def on_change(_connection, _notification) -> None:
+        await state.refresh()
+
+    await iterm2.notifications.async_subscribe_to_layout_change_notification(connection, on_change)
+    await iterm2.notifications.async_subscribe_to_new_session_notification(connection, on_change)
+    await iterm2.notifications.async_subscribe_to_terminate_session_notification(connection, on_change)
+    await iterm2.notifications.async_subscribe_to_focus_change_notification(connection, on_change)
+
+    log.info("subscriptions live; waiting for events")
+
+
+iterm2.run_forever(main)

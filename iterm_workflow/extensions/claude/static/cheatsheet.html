@@ -1,0 +1,60 @@
+<section class="cheatsheet-section">
+  <h3>Commands</h3>
+  <table class="cheatsheet-table">
+    <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td><code>/help</code></td><td>List all available commands.</td></tr>
+      <tr><td><code>/init</code></td><td>Explore the codebase and generate a starter <code>CLAUDE.md</code>.</td></tr>
+      <tr><td><code>/clear</code></td><td>Wipe conversation history and start fresh (project memory stays). Aliases: <code>/reset</code>, <code>/new</code>.</td></tr>
+      <tr><td><code>/compact</code></td><td>Summarize the conversation so far to free up context. Accepts optional focus instructions.</td></tr>
+      <tr><td><code>/btw</code></td><td>Ask a quick side question without adding it to the main conversation or consuming context.</td></tr>
+      <tr><td><code>/rewind</code></td><td>Roll the conversation and/or your code back to an earlier checkpoint.</td></tr>
+      <tr><td><code>/model</code></td><td>View or switch the active model.</td></tr>
+      <tr><td><code>/cost</code></td><td>Show token usage and spend for this session.</td></tr>
+      <tr><td><code>/usage</code></td><td>Show your plan's usage limits and current rate-limit status.</td></tr>
+      <tr><td><code>/context</code></td><td>Visualize what is currently loaded into the context window and where it is being spent.</td></tr>
+      <tr><td><code>/memory</code></td><td>View or edit the <code>CLAUDE.md</code> files in scope.</td></tr>
+      <tr><td><code>/add-dir</code></td><td>Grant Claude file access to an additional directory for this session.</td></tr>
+      <tr><td><code>/permissions</code></td><td>View or change which tools require approval.</td></tr>
+      <tr><td><code>/config</code></td><td>Open configuration settings (theme, defaults, editor mode). Alias: <code>/settings</code>.</td></tr>
+      <tr><td><code>/plan</code></td><td>Drop straight into Plan Mode, optionally with a task description.</td></tr>
+      <tr><td><code>/diff</code></td><td>Open an interactive viewer of uncommitted changes and per-turn diffs.</td></tr>
+      <tr><td><code>/copy</code></td><td>Copy the last response (or a selected code block) to your clipboard.</td></tr>
+      <tr><td><code>/export</code></td><td>Save the current conversation to a file or the clipboard.</td></tr>
+      <tr><td><code>/mcp</code></td><td>Manage MCP server connections and authentication.</td></tr>
+      <tr><td><code>/agents</code></td><td>List, create, or edit subagents.</td></tr>
+      <tr><td><code>/hooks</code></td><td>View hook configuration for tool events.</td></tr>
+      <tr><td><code>/skills</code></td><td>List the skills available in this session.</td></tr>
+      <tr><td><code>/simplify</code></td><td>Bundled skill: review your recently changed files for reuse, quality, and efficiency issues, then apply fixes.</td></tr>
+      <tr><td><code>/status</code></td><td>Show account, model, working directory, and version.</td></tr>
+      <tr><td><code>/doctor</code></td><td>Diagnose install and environment issues.</td></tr>
+      <tr><td><code>/feedback</code></td><td>Report an issue to Anthropic with session context attached. Alias: <code>/bug</code>.</td></tr>
+      <tr><td><code>/resume</code></td><td>Reopen a previous session and continue where you left off. Alias: <code>/continue</code>.</td></tr>
+      <tr><td><code>/login</code> / <code>/logout</code></td><td>Authenticate, switch accounts, or sign out.</td></tr>
+      <tr><td><code>/exit</code></td><td>Quit the CLI. Alias: <code>/quit</code>.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="cheatsheet-section">
+  <h3>Keyboard shortcuts</h3>
+  <table class="cheatsheet-table">
+    <thead><tr><th>Key</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td><kbd>Shift</kbd> + <kbd>Tab</kbd></td><td>Cycle permission mode: <code>default → acceptEdits → plan</code>. Also includes <code>auto</code> after running <code>claude --enable-auto-mode</code>, and <code>bypassPermissions</code> when that mode is enabled.</td></tr>
+      <tr><td><kbd>Esc</kbd></td><td>Interrupt Claude mid-response so you can type again.</td></tr>
+      <tr><td><kbd>Esc</kbd>, <kbd>Esc</kbd></td><td>Open the rewind/checkpoint menu to roll back to an earlier point in the session.</td></tr>
+      <tr><td><kbd>Ctrl</kbd> + <kbd>C</kbd></td><td>Cancel the current input, or exit on an empty prompt.</td></tr>
+      <tr><td><kbd>Ctrl</kbd> + <kbd>R</kbd></td><td>Reverse search through your prompt history.</td></tr>
+      <tr><td><kbd>Ctrl</kbd> + <kbd>O</kbd></td><td>Expand to the verbose, full transcript view.</td></tr>
+      <tr><td><kbd>↑</kbd> / <kbd>↓</kbd></td><td>Scroll through your prompt history.</td></tr>
+      <tr><td><code>@</code> + path</td><td>Reference a file or directory in your prompt.</td></tr>
+      <tr><td><code>/</code></td><td>Open the command menu.</td></tr>
+      <tr><td><code>?</code></td><td>Show shortcuts for your current terminal or IDE.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<p class="cheatsheet-source">
+  Source: <a href="https://support.claude.com/en/articles/14553413-claude-code-cheatsheet" target="_blank" rel="noopener">support.claude.com</a>
+</p>

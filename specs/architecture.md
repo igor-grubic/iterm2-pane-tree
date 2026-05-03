@@ -1,0 +1,79 @@
+# Architecture
+
+## Overview
+
+`iterm2-pane-tree` is an iTerm2 AutoLaunch daemon. It runs inside iTerm2's bundled Python runtime (not the system Python) and registers event hooks via the iTerm2 Python API. A lightweight HTTP server on `127.0.0.1:9876` serves a browser-based side panel displayed in the iTerm2 toolbelt.
+
+## Startup sequence
+
+1. iTerm2 launches `iterm_workflow/iterm_workflow.py` automatically on start
+2. The daemon connects to iTerm2 via the Python API
+3. Enabled extensions are loaded from `extensions.json` via `extensions/_loader.py`
+4. The HTTP server starts on port 9876
+5. iTerm2 update hooks are registered (window/tab/session change events)
+6. The panel HTML is loaded in the toolbelt webview; the JS opens a polling connection to `/api/tree`
+
+## Data flow
+
+```
+iTerm2 runtime
+    │  update events
+    ▼
+iterm_workflow.py  ──────────────────────────────────────────┐
+    │                                                         │
+    │  on change: invalidate tree cache                       │
+    ▼                                                         │
+server/tree.py                                                │
+    │  build_tree(app, buried_positions, registry)            │
+    │  → walks App → Window → Tab → Session                   │
+    │  → calls session enrichers from Registry                │
+    │  → returns JSON-serializable dict                       │
+    ▼                                                         │
+server/http.py                                                │
+    │  GET /api/tree → returns snapshot JSON                  │
+    │  POST /api/focus|close|create|bury → delegates to       │
+    │    server/actions.py                                     │
+    │  GET /api/ext/<name>/<path> → delegates to              │
+    │    Registry.routes                                      │
+    ▼                                                         │
+webview/index.html + app.js                                   │
+    │  polls /api/tree every ~500ms                           │
+    │  renders tree, handles click events                     │
+    └─────────────────────────────────────────────────────────┘
+```
+
+## Module responsibilities
+
+### `iterm_workflow.py`
+Entry point. Connects to iTerm2, bootstraps extensions, starts the HTTP server, registers `async_monitor` hooks for window/tab/session changes. Owns the `buried_positions` dict (maps session_id → last-known tab_id, so buried sessions can be re-shown under the right tab).
+
+### `server/tree.py`
+Builds the snapshot. Reads iTerm2 state (windows, tabs, sessions, buried sessions), calls `_session_status` to get job/cwd/screen content, runs registered session enrichers, and returns a pure dict with no iTerm2 objects.
+
+### `server/http.py`
+Minimal HTTP server (no framework). Routes:
+- `GET /` → panel HTML
+- `GET /api/tree` → snapshot JSON
+- `POST /api/*` → action dispatch
+- `GET /static/*` → bundled webview assets
+- `GET /static/ext/<name>/*` → extension static assets
+
+### `server/actions.py`
+Handles user-initiated actions (focus window/tab/pane, create tab/window, close session, bury/unbury). Returns `{"ok": true}` or `{"error": "..."}`.
+
+### `extensions/_api.py`
+Defines `ExtensionAPI` (the v1 contract exposed to extensions) and `Registry` (the shared mutable container the core reads at request time). See `specs/extension-api.md`.
+
+### `extensions/_loader.py`
+Reads `extensions.json`, imports enabled extension packages, calls `register(api)` on each. Failures are logged and skipped — a bad extension must not crash the daemon.
+
+### `webview/`
+Static browser assets. `app.js` polls `/api/tree`, diffs the response, and updates the DOM. Exposes `window.PaneTreeExt` for extension JS hooks.
+
+## Threading model
+
+The daemon runs on the iTerm2 asyncio event loop. The HTTP server runs on the same loop (using `asyncio.start_server`). All iTerm2 API calls must be awaited on this loop. `ps` is run in a thread pool executor to avoid blocking the loop.
+
+## Port
+
+Hard-coded to `127.0.0.1:9876`. Not configurable in v1.
