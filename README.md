@@ -8,7 +8,7 @@ Live tree of every iTerm2 window, tab, and pane — purpose-built for orchestrat
 
 Live tree of every iTerm2 window, tab, and pane — click to focus, create, or close sessions from a persistent side panel.
 
-![iterm2-claude-cockpit panel showing the window/tab/pane tree alongside Claude Code](docs/screenshot.png)
+![iterm2-claude-cockpit panel showing the window/tab/pane tree alongside Claude Code](docs/demo.gif)
 
 ## Features
 
