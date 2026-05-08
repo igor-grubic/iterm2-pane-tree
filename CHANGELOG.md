@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed
+- Closing a pane now shows a small inline `sure?` confirmation next to the × button instead of closing immediately. Click `no` (or press `Escape` / click outside) to cancel.
+
 ### Added
 - Extension system: opt-in modules under `iterm_workflow/extensions/<name>/` with a small `register(api)` surface for snapshot enrichment, webview asset injection (CSS/JS), and HTTP route registration. Enable/disable with `python -m iterm_workflow ext enable|disable <name>`.
 - `claude` bundled extension: detects Claude-driven panes (job match + descendant process walk), tags them as `ext.claude.active`, and decorates them with an accent color and `✦` badge. Enabled by default; `ext disable claude` for a vanilla worktree panel.

@@ -249,7 +249,10 @@ window.PaneTreeExt = window.PaneTreeExt || {
       badge.textContent = "buried";
       row.appendChild(badge);
     } else {
-      const closeBtn = makeActionBtn("×", (ev) => { ev.stopPropagation(); postAction("/api/close-session", { id: p.id }); });
+      const closeBtn = makeActionBtn("×", (ev) => {
+        ev.stopPropagation();
+        showConfirmPopup(closeBtn, () => postAction("/api/close-session", { id: p.id }));
+      });
       closeBtn.setAttribute("title", "Close session");
       closeBtn.classList.add("pane-close-btn");
       row.appendChild(closeBtn);
@@ -366,6 +369,37 @@ window.PaneTreeExt = window.PaneTreeExt || {
   let activePopup = null;
   function dismissPopup() {
     if (activePopup) { activePopup.remove(); activePopup = null; }
+  }
+
+  function showConfirmPopup(anchor, onConfirm) {
+    dismissPopup();
+    const popup = document.createElement("div");
+    popup.className = "confirm-popup";
+    popup.addEventListener("click", (ev) => ev.stopPropagation());
+
+    const label = document.createElement("span");
+    label.className = "confirm-label";
+    label.textContent = "sure?";
+
+    const yes = document.createElement("button");
+    yes.className = "confirm-yes";
+    yes.textContent = "yes";
+    yes.addEventListener("click", () => { dismissPopup(); onConfirm(); });
+
+    const no = document.createElement("button");
+    no.className = "confirm-no";
+    no.textContent = "no";
+    no.addEventListener("click", () => dismissPopup());
+
+    popup.append(label, yes, no);
+
+    const rect = anchor.getBoundingClientRect();
+    popup.style.top = (rect.bottom + 4) + "px";
+    popup.style.right = (window.innerWidth - rect.right) + "px";
+
+    document.body.appendChild(popup);
+    activePopup = popup;
+    yes.focus();
   }
   document.addEventListener("click", dismissPopup);
   document.addEventListener("keydown", (ev) => { if (ev.key === "Escape") dismissPopup(); });

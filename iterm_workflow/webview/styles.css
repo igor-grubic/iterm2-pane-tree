@@ -333,6 +333,40 @@ main {
 .lines-line  { white-space: pre; line-height: 1.7; }
 .lines-empty { color: var(--fg-muted); font-style: italic; }
 
+/* ── confirm popup ──────────────────────────────────────────────── */
+.confirm-popup {
+  position: fixed;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #16161a;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 6px;
+  font-size: 11px;
+  color: var(--fg);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+}
+
+.confirm-popup .confirm-label { color: var(--fg-muted); }
+
+.confirm-popup button {
+  flex: 0 0 auto;
+  padding: 2px 8px;
+  font-size: 11px;
+  border-radius: 4px;
+  border: 1px solid var(--btn-border);
+  background: var(--btn-bg);
+  color: var(--fg);
+  cursor: pointer;
+  transition: background 0.1s, border-color 0.1s;
+}
+
+.confirm-popup .confirm-yes { color: var(--clr-close); border-color: #3a1c1c; }
+.confirm-popup .confirm-yes:hover { background: #2e1414; border-color: var(--clr-close); }
+.confirm-popup .confirm-no:hover  { background: var(--btn-hover); border-color: #555562; }
+
 /* ── footer ─────────────────────────────────────────────────────── */
 footer {
   display: flex;
