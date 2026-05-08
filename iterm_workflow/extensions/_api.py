@@ -16,6 +16,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from extensions._signals import SignalSource
+
 SessionEnricher = Callable[..., Any]
 RouteHandler = Callable[..., Any]
 
@@ -26,6 +28,7 @@ class Registry:
     static_dirs: dict[str, Path] = field(default_factory=dict)
     webview_assets: list[tuple[str, str, str]] = field(default_factory=list)
     routes: dict[tuple[str, str], RouteHandler] = field(default_factory=dict)
+    signal_sources: list[SignalSource] = field(default_factory=list)
 
 
 class ExtensionAPI:
@@ -67,3 +70,25 @@ class ExtensionAPI:
 
     def add_action(self, name: str, handler: RouteHandler) -> None:
         self.add_route("POST", name, handler)
+
+    def add_signal_dir_source(
+        self,
+        name: str,
+        directory: str | Path,
+        ttl_seconds: float | None = None,
+    ) -> None:
+        """Register a directory of TTY-keyed JSON signal files.
+
+        Hook scripts write <tty-basename>.json into directory; the daemon reads
+        them once per tick and passes the parsed payloads to enrichers that
+        declare a `signals` kwarg.
+
+        ttl_seconds defaults to None — signals represent persistent state and
+        live until the next hook overwrites them or the daemon restarts. Pass
+        a value only if signals are events that should expire (e.g. a 5s
+        heartbeat). Stale files left over across daemon restarts are cleaned
+        at startup regardless.
+        """
+        d = Path(directory)
+        d.mkdir(parents=True, exist_ok=True)
+        self._registry.signal_sources.append(SignalSource(name=name, directory=d, ttl_seconds=ttl_seconds))

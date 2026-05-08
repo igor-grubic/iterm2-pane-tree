@@ -1,12 +1,14 @@
-# iterm2-pane-tree
+# iterm2-claude-cockpit
 
-[![CI](https://github.com/igorgrubic/iterm2-pane-tree/actions/workflows/ci.yml/badge.svg)](https://github.com/igorgrubic/iterm2-pane-tree/actions/workflows/ci.yml)
+Live tree of every iTerm2 window, tab, and pane — purpose-built for orchestrating many Claude Code sessions side-by-side.
+
+[![CI](https://github.com/igorgrubic/iterm2-claude-cockpit/actions/workflows/ci.yml/badge.svg)](https://github.com/igorgrubic/iterm2-claude-cockpit/actions/workflows/ci.yml)
 [![iTerm2 3.5+](https://img.shields.io/badge/iTerm2-3.5%2B-blue)](https://iterm2.com)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)](https://iterm2.com/python-api/)
 
 Live tree of every iTerm2 window, tab, and pane — click to focus, create, or close sessions from a persistent side panel.
 
-![iterm2-pane-tree panel showing the window/tab/pane tree alongside Claude Code](docs/screenshot.png)
+![iterm2-claude-cockpit panel showing the window/tab/pane tree alongside Claude Code](docs/screenshot.png)
 
 ## Features
 
@@ -41,19 +43,19 @@ No separate Python installation needed — iTerm2 bundles its own runtime.
 **Option A — recommended for most users.** Clone directly into the AutoLaunch directory:
 
 ```bash
-git clone https://github.com/igorgrubic/iterm2-pane-tree.git \
+git clone https://github.com/igorgrubic/iterm2-claude-cockpit.git \
   "$HOME/Library/Application Support/iTerm2/Scripts/AutoLaunch/iterm_workflow"
 ```
 
 **Option B — recommended for developers.** Clone anywhere and symlink:
 
 ```bash
-git clone https://github.com/igorgrubic/iterm2-pane-tree.git ~/code/iterm_workflow
+git clone https://github.com/igorgrubic/iterm2-claude-cockpit.git ~/code/iterm_workflow
 ln -s "$HOME/code/iterm_workflow" \
   "$HOME/Library/Application Support/iTerm2/Scripts/AutoLaunch/iterm_workflow"
 ```
 
-> **Why `iterm_workflow`?** iTerm2's script loader requires the folder name, inner package name, and entry script name to all match. The repo is named `iterm2-pane-tree` but must be installed as `iterm_workflow`.
+> **Why `iterm_workflow`?** iTerm2's script loader requires the folder name, inner package name, and entry script name to all match. The repo is named `iterm2-claude-cockpit` but must be installed as `iterm_workflow`.
 
 ### 3. Run once from the Scripts menu
 
@@ -116,13 +118,52 @@ After enabling or disabling, restart iTerm2 — the toolbelt webview is loaded o
 
 ### Bundled extensions
 
-- **claude** — detects Claude-driven panes (matches `claude` / `claude-code` jobs and walks the descendant process tree), tags them in the snapshot as `ext.claude.active`, and styles them in the panel (badge + accent color, hides the redundant job badge).
+- **claude** — detects Claude Code panes via a `ps -t <tty>` process check, tags them in the snapshot as `ext.claude.{active,state,action_needed}`, and decorates them in the panel (accent color, ❗ attention badge, blue plan-mode tint). Status is driven by Claude Code hook signal files; see [Claude Code integration](#claude-code-integration) for setup.
+
+#### Claude Code integration
+
+For accurate `running` / `idle` / `attention` states, run the interactive installer once:
+
+```bash
+python3 /path/to/iterm_workflow/extensions/claude/hooks/install.py
+```
+
+The installer explains every change it will make, shows before/after for each hook entry, and asks for confirmation before touching anything. It writes a `.bak` of your existing `~/.claude/settings.json` before modifying it.
+
+<details>
+<summary>What the installer adds (manual alternative)</summary>
+
+```json
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {"hooks": [{"type": "command", "command": "/path/to/iterm_workflow/extensions/claude/hooks/notify.sh running"}]}
+    ],
+    "Stop": [
+      {"hooks": [{"type": "command", "command": "/path/to/iterm_workflow/extensions/claude/hooks/notify.sh idle"}]}
+    ],
+    "Notification": [
+      {"hooks": [{"type": "command", "command": "/path/to/iterm_workflow/extensions/claude/hooks/notify.sh attention"}]}
+    ]
+  }
+}
+```
+</details>
+
+To remove the hooks later:
+
+```bash
+python3 /path/to/iterm_workflow/extensions/claude/hooks/uninstall.py
+```
+
+Without hooks, panes where `claude` is the foreground process still show as active (amber) but state will default to `running` throughout the session.
 
 ### Authoring an extension
 
 Create `iterm_workflow/extensions/<name>/__init__.py` exposing `register(api)`. The API (v1) lets you:
 
-- `api.add_session_enricher(fn)` — add fields to each session node before serialization. `fn(session, node, ps_output)` may be sync or async; return a dict to merge or mutate `node` in place. Use the `ext.<name>.<field>` namespace for new keys.
+- `api.add_session_enricher(fn)` — add fields to each session node before serialization. `fn(session, node, ps_output, screen_lines, signals=None)` may be sync or async; return a dict to merge or mutate `node` in place. Use the `ext.<name>.<field>` namespace for new keys.
+- `api.add_signal_dir_source(name, directory)` — register a directory of TTY-keyed JSON signal files written by in-pane hook scripts; the parsed payloads are passed to enrichers via the `signals` kwarg.
 - `api.add_static_dir(path)` — serve a directory at `/static/ext/<name>/...`.
 - `api.add_webview_asset("css"|"js", relpath)` — inject a `<link>` or `<script>` tag into the panel HTML.
 - `api.add_route("GET"|"POST", path, handler)` — handle `/api/ext/<name>/<path>`. Async handlers run on the iTerm2 event loop.

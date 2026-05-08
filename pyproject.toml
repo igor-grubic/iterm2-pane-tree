@@ -3,9 +3,9 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "iterm2-pane-tree"
+name = "iterm2-claude-cockpit"
 version = "0.1.0"
-description = "Live window/tab/pane tree panel for iTerm2"
+description = "iTerm2 toolbelt cockpit for managing many Claude Code panes — live window/tab/pane tree with per-pane Claude status, focus, create, rename, and bury controls."
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [{ name = "Igor Grubic", email = "igorgrubic@users.noreply.github.com" }]
@@ -13,8 +13,8 @@ requires-python = ">=3.10"
 dependencies = ["iterm2"]
 
 [project.urls]
-Homepage = "https://github.com/igorgrubic/iterm2-pane-tree"
-"Bug Tracker" = "https://github.com/igorgrubic/iterm2-pane-tree/issues"
+Homepage = "https://github.com/igorgrubic/iterm2-claude-cockpit"
+"Bug Tracker" = "https://github.com/igorgrubic/iterm2-claude-cockpit/issues"
 
 [tool.ruff]
 target-version = "py310"

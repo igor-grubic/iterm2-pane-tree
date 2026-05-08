@@ -29,4 +29,4 @@ paste here
 
 - iTerm2 version: <!-- Help → About iTerm2 -->
 - macOS version:
-- iterm2-pane-tree commit:
+- iterm2-claude-cockpit commit:

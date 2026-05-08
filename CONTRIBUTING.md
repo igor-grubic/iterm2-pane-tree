@@ -17,7 +17,7 @@ Open an issue with the label `enhancement`. Describe the use case, not just the 
 ## Development setup
 
 ```bash
-git clone https://github.com/igorgrubic/iterm2-pane-tree.git ~/code/iterm_workflow
+git clone https://github.com/igorgrubic/iterm2-claude-cockpit.git ~/code/iterm_workflow
 ln -s "$HOME/code/iterm_workflow" \
   "$HOME/Library/Application Support/iTerm2/Scripts/AutoLaunch/iterm_workflow"
 ```

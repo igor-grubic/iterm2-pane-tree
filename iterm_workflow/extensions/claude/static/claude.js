@@ -6,20 +6,22 @@
   }
 
   const isClaude = (p) => Boolean(p && p["ext.claude.active"]);
-  const claudeMode = (p) => (p && p["ext.claude.mode"]) || "idle";
+  const claudeState = (p) => (p && p["ext.claude.state"]) || "idle";
   const claudeActionNeeded = (p) => Boolean(p && p["ext.claude.action_needed"]);
 
   ext.paneRowDecorators.push((row, p) => {
     if (!isClaude(p)) return;
+    const state = claudeState(p);
     row.classList.add("claude");
-    if (claudeMode(p) === "plan") row.classList.add("claude-plan");
-    if (claudeActionNeeded(p)) row.classList.add("claude-action");
+    if (state === "running") row.classList.add("claude-running");
+    if (state === "attention") row.classList.add("claude-attention");
+    if (state === "plan") row.classList.add("claude-plan");
   });
 
   ext.paneTitleDecorators.push((label, p) => {
     if (!isClaude(p) || !claudeActionNeeded(p)) return;
     const icon = document.createElement("span");
-    icon.className = "claude-action-icon";
+    icon.className = "claude-attention-icon";
     icon.textContent = "❗";
     label.prepend(icon);
   });

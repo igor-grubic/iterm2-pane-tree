@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import inspect
 import logging
 import subprocess
 from pathlib import Path
@@ -70,7 +71,7 @@ async def _session_status(session: iterm2.Session) -> tuple[str, str, list[str]]
 def _run_ps() -> str:
     try:
         return subprocess.run(
-            ["ps", "-A", "-o", "pid=,ppid=,comm="],
+            ["ps", "-A", "-o", "pid=,ppid=,tty=,comm="],
             capture_output=True,
             text=True,
             timeout=2,
@@ -84,14 +85,33 @@ def _path_label(cwd: str) -> str:
     return (name[:10] + "…") if len(name) > 10 else name
 
 
+def _enricher_accepts_signals(fn: object) -> bool:
+    """Return True if fn declares a `signals` keyword parameter."""
+    attr = "_iterm_accepts_signals"
+    cached = getattr(fn, attr, None)
+    if cached is not None:
+        return cached
+    try:
+        result = "signals" in inspect.signature(fn).parameters  # type: ignore[arg-type]
+    except (ValueError, TypeError):
+        result = False
+    try:
+        object.__setattr__(fn, attr, result)  # type: ignore[arg-type]
+    except (AttributeError, TypeError):
+        pass
+    return result
+
+
 async def _session_node(
     session: iterm2.Session,
     active_session_id: str | None,
     ps_output: str = "",
     registry: Registry | None = None,
+    signals: dict | None = None,
 ) -> dict:
     job, last_line, screen_lines = await _session_status(session)
     cwd = await _get_var(session, "path") or ""
+    tty = await _get_var(session, "tty") or ""
     iterm_title = await _session_title(session)
     title = _path_label(cwd)
 
@@ -104,12 +124,16 @@ async def _session_node(
         "job": job,
         "last_line": last_line,
         "cwd": cwd,
+        "tty": tty,
     }
 
     if registry is not None:
         for fn in registry.session_enrichers:
             try:
-                result = fn(session, node, ps_output, screen_lines)
+                kwargs: dict = {}
+                if _enricher_accepts_signals(fn):
+                    kwargs["signals"] = signals
+                result = fn(session, node, ps_output, screen_lines, **kwargs)
                 if asyncio.iscoroutine(result):
                     result = await result
                 if isinstance(result, dict):
@@ -129,12 +153,13 @@ async def _tab_node(
     ps_output: str = "",
     registry: Registry | None = None,
     tab_names: dict[str, str] | None = None,
+    signals: dict | None = None,
 ) -> dict:
     panes: list[dict] = []
     for session in tab.sessions:
-        panes.append(await _session_node(session, active_session_id, ps_output, registry))
+        panes.append(await _session_node(session, active_session_id, ps_output, registry, signals))
     for session in buried_here:
-        node = await _session_node(session, None, ps_output, registry)
+        node = await _session_node(session, None, ps_output, registry, signals)
         node["buried"] = True
         panes.append(node)
 
@@ -162,6 +187,12 @@ async def build_tree(
     loop = asyncio.get_running_loop()
     ps_output = await loop.run_in_executor(None, _run_ps)
 
+    signals: dict | None = None
+    if registry is not None and registry.signal_sources:
+        from extensions._signals import read_all as _read_signals
+
+        signals = await loop.run_in_executor(None, _read_signals, registry.signal_sources)
+
     # Index buried sessions by session_id for quick lookup
     buried_by_tab: dict[str, list] = {}
     try:
@@ -188,7 +219,15 @@ async def build_tree(
             buried_here = buried_by_tab.get(str(tab.tab_id), [])
             tabs.append(
                 await _tab_node(
-                    tab, tab_idx, active_tab_id, active_session_id, buried_here, ps_output, registry, tab_names
+                    tab,
+                    tab_idx,
+                    active_tab_id,
+                    active_session_id,
+                    buried_here,
+                    ps_output,
+                    registry,
+                    tab_names,
+                    signals,
                 )
             )
 

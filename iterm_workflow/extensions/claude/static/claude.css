@@ -1,4 +1,4 @@
-.claude-action-icon {
+.claude-attention-icon {
   font-size: 11px;
   color: var(--clr-running);
   margin-right: 4px;
@@ -13,11 +13,15 @@
   color: #f6c177;
 }
 
-.node.pane.claude.claude-action .pane-title {
+.node.pane.claude.claude-running .pane-title {
+  color: #f6c177;
+}
+
+.node.pane.claude.claude-attention .pane-title {
   color: var(--clr-running);
 }
 
-/* declared after .claude-action so plan-mode blue wins when both classes
+/* declared after .claude-attention so plan-mode blue wins when both classes
    are present (same specificity, last-declared wins) */
 .node.pane.claude.claude-plan .pane-title {
   color: var(--accent);

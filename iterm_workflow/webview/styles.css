@@ -403,7 +403,7 @@ button.primary:hover { background: #6cb1ff; }
 }
 
 /* ── icon-btn row (compact cheatsheet / settings buttons) ────────── */
-footer .row.icons { justify-content: flex-start; gap: 4px; }
+footer .row.icons { justify-content: flex-end; gap: 4px; }
 
 .icon-btn {
   flex: none;

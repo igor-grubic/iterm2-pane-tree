@@ -1,4 +1,4 @@
-# CLAUDE.md — Agent Guide for iterm2-pane-tree
+# CLAUDE.md — Agent Guide for iterm2-claude-cockpit
 
 This file is the authoritative guide for AI agents (Claude Code and others) working in this repo. Read it before making any changes.
 
@@ -6,7 +6,7 @@ This file is the authoritative guide for AI agents (Claude Code and others) work
 
 ## Project in one sentence
 
-`iterm2-pane-tree` is a zero-dependency iTerm2 AutoLaunch daemon that serves a live window/tab/pane tree as a toolbelt side panel, with an opt-in extension system for enriching the snapshot.
+`iterm2-claude-cockpit` is a zero-dependency iTerm2 AutoLaunch daemon that serves a live window/tab/pane tree as a toolbelt cockpit, with first-class support for managing parallel Claude Code panes via a bundled extension.
 
 ---
 
@@ -21,7 +21,7 @@ iterm_workflow/          ← cloned/symlinked folder (must be named iterm_workfl
     └── iterm_workflow.py ← entry point (must match package name)
 ```
 
-Never rename these, change the two-level structure, or remove `setup.cfg`. The repo name (`iterm2-pane-tree`) intentionally differs from the install name (`iterm_workflow`).
+Never rename these, change the two-level structure, or remove `setup.cfg`. The repo name (`iterm2-claude-cockpit`) intentionally differs from the install name (`iterm_workflow`).
 
 ---
 
@@ -36,6 +36,7 @@ See `specs/architecture.md` for the full picture. Quick map:
 | `server/http.py` | Serves the panel HTML and `/api/*` routes |
 | `server/actions.py` | Handles user actions: focus, create, close, bury |
 | `extensions/_api.py` | `ExtensionAPI` and shared `Registry` (the v1 contract) |
+| `extensions/_signals.py` | TTY-keyed signal-file reader; feeds hook payloads to enrichers |
 | `extensions/_loader.py` | Loads enabled extensions at startup |
 | `extensions/claude/` | Bundled Claude-detection extension |
 | `webview/` | The browser-side panel (HTML/CSS/JS) |

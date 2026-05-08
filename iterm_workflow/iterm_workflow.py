@@ -20,6 +20,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import iterm2  # noqa: E402
 
 from extensions import _loader as ext_loader  # noqa: E402
+from extensions._signals import sweep_sources as _sweep_sources  # noqa: E402
 from server import http as http_server  # noqa: E402
 
 PORT = 9876
@@ -38,6 +39,11 @@ async def main(connection: iterm2.Connection) -> None:
     app = await iterm2.async_get_app(connection)
     loop = asyncio.get_running_loop()
     registry = ext_loader.load()
+
+    # Remove stale signal files left over from a previous daemon run.
+    if registry.signal_sources:
+        await loop.run_in_executor(None, _sweep_sources, registry.signal_sources)
+
     state = http_server.State(connection, app, loop, registry)
 
     await state.refresh()

@@ -51,13 +51,15 @@ def fn(
     node: dict,
     ps_output: str,
     screen_lines: list[str],
+    signals: dict | None = None,   # optional; declare to receive signal data
 ) -> dict | None: ...
 ```
 
 - `session` — the iTerm2 Session object (read-only recommended; writes are not tested)
-- `node` — the partially-built session dict; may be mutated in place
-- `ps_output` — raw output of `ps -A -o pid=,ppid=,comm=` (shared across all enrichers for this snapshot)
+- `node` — the partially-built session dict; may be mutated in place; includes `tty` as of v1.1
+- `ps_output` — raw output of `ps -A -o pid=,ppid=,tty=,comm=` (4 columns, shared across all enrichers for this snapshot)
 - `screen_lines` — up to 20 recent non-empty visible terminal lines, oldest-first
+- `signals` — if the enricher declares this kwarg, the dispatcher passes `{source_name: {tty_basename: payload_dict}}` built from all registered signal-dir sources (see `api.add_signal_dir_source`). Enrichers that do not declare `signals` receive only the four positional args.
 - Return a `dict` to merge into `node`, or `None`/mutate in place
 
 The function may be `async`. Errors are caught and logged; a failing enricher does not abort the snapshot.
@@ -104,6 +106,24 @@ api.add_route("POST", "action", my_handler)
 ### `api.add_action(name, handler)`
 
 Convenience wrapper for `add_route("POST", name, handler)`.
+
+### `api.add_signal_dir_source(name, directory, ttl_seconds=None)`
+
+Register a directory of TTY-keyed JSON signal files written by in-pane hook scripts.
+
+```python
+api.add_signal_dir_source("claude", "/tmp/iterm-pane-tree/claude")
+```
+
+- `name` — identifies the source; used as the key in the `signals` dict passed to enrichers
+- `directory` — path to the directory; created automatically if it does not exist
+- `ttl_seconds` — defaults to `None`, meaning signals represent persistent state and live until the next hook overwrites them or the daemon restarts. Pass a positive value only if signals are events that should expire (e.g. a 5s heartbeat). Stale files left over across daemon restarts are cleaned at startup regardless.
+
+**Signal file format:** `<tty-basename>.json` (e.g. `ttys003.json`), containing at minimum `{"tty": "/dev/ttys003", "state": "<value>", "ts": <epoch>}`. Written atomically by hook scripts via tmpfile + rename.
+
+**In the enricher:** declare `signals` as a kwarg and receive `signals["<name>"][<tty-basename>]` for the current session's TTY. The `node["tty"]` field (e.g. `/dev/ttys003`) gives the full path; `Path(tty).name` gives the basename to look up.
+
+**Shipped hook script:** `iterm_workflow/extensions/claude/hooks/notify.sh` is the reference implementation. See the "Claude Code integration" section in the README for the `~/.claude/settings.json` snippet.
 
 ## Webview extension points
 

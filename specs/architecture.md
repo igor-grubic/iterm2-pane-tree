@@ -2,7 +2,7 @@
 
 ## Overview
 
-`iterm2-pane-tree` is an iTerm2 AutoLaunch daemon. It runs inside iTerm2's bundled Python runtime (not the system Python) and registers event hooks via the iTerm2 Python API. A lightweight HTTP server on `127.0.0.1:9876` serves a browser-based side panel displayed in the iTerm2 toolbelt.
+`iterm2-claude-cockpit` is an iTerm2 AutoLaunch daemon. It runs inside iTerm2's bundled Python runtime (not the system Python) and registers event hooks via the iTerm2 Python API. A lightweight HTTP server on `127.0.0.1:9876` serves a browser-based side panel displayed in the iTerm2 toolbelt.
 
 ## Startup sequence
 
