@@ -112,6 +112,41 @@ window.PaneTreeExt = window.PaneTreeExt || {
     return wrap;
   }
 
+  function startTabEdit(row, t) {
+    const labelEl = row.querySelector(".node-label");
+    const editBtn = row.querySelector(".tab-edit-btn");
+    if (!labelEl) return;
+    const input = document.createElement("input");
+    input.className = "tab-edit-input";
+    input.value = t.title;
+    labelEl.replaceWith(input);
+    if (editBtn) editBtn.style.display = "none";
+    input.focus();
+    input.select();
+
+    let committed = false;
+    function commit() {
+      if (committed) return;
+      committed = true;
+      postAction("/api/rename-tab", { id: t.id, name: input.value.trim() });
+      input.replaceWith(labelEl);
+      if (editBtn) editBtn.style.display = "";
+    }
+    function cancel() {
+      if (committed) return;
+      committed = true;
+      input.replaceWith(labelEl);
+      if (editBtn) editBtn.style.display = "";
+    }
+
+    input.addEventListener("keydown", (ev) => {
+      if (ev.key === "Enter") { ev.stopPropagation(); commit(); }
+      if (ev.key === "Escape") { ev.stopPropagation(); cancel(); }
+    });
+    input.addEventListener("blur", commit);
+    input.addEventListener("click", (ev) => ev.stopPropagation());
+  }
+
   function renderTab(t) {
     const wrap = document.createElement("div");
     const tKey = nodeKey(t);
@@ -124,6 +159,12 @@ window.PaneTreeExt = window.PaneTreeExt || {
         toggle(tKey);
       });
     }
+    const editBtn = document.createElement("span");
+    editBtn.className = "tab-edit-btn";
+    editBtn.textContent = "✎";
+    editBtn.title = "Rename tab";
+    editBtn.addEventListener("click", (ev) => { ev.stopPropagation(); startTabEdit(row, t); });
+    row.appendChild(editBtn);
     wrap.appendChild(row);
     if (!tIsCollapsed && (t.panes || []).length > 0) {
       for (const p of t.panes) {
@@ -465,7 +506,9 @@ window.PaneTreeExt = window.PaneTreeExt || {
       if (json !== lastSnapshotJson) {
         lastSnapshotJson = json;
         lastSnapshot = data;
-        renderTree(lastSnapshot);
+        if (!document.querySelector(".tab-edit-input")) {
+          renderTree(lastSnapshot);
+        }
       }
     } catch (e) {
       consecutiveFailures++;

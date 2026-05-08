@@ -80,6 +80,22 @@ Create a new tab or window.
 
 ---
 
+### `POST /api/rename-tab`
+
+Set a custom display name for a tab. The name persists in the daemon's memory until the tab or window is closed.
+
+**Request body:** `application/json`
+
+```json
+{ "id": "<tab id>", "name": "<new name>" }
+```
+
+`id` is optional — when omitted, the currently active tab is renamed. Set `name` to an empty string to clear a custom name and revert to the auto-generated `"Tab N"` label.
+
+**Response:** `200 application/json` — `{ "ok": true }` or `{ "ok": false, "error": "..." }`
+
+---
+
 ### `POST /api/bury`
 
 Bury (hide without closing) or unbury a session.

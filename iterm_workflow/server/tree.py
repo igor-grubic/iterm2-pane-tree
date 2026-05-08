@@ -128,6 +128,7 @@ async def _tab_node(
     buried_here: list,
     ps_output: str = "",
     registry: Registry | None = None,
+    tab_names: dict[str, str] | None = None,
 ) -> dict:
     panes: list[dict] = []
     for session in tab.sessions:
@@ -137,7 +138,7 @@ async def _tab_node(
         node["buried"] = True
         panes.append(node)
 
-    title = f"Tab {tab_idx + 1}"
+    title = (tab_names or {}).get(str(tab.tab_id)) or f"Tab {tab_idx + 1}"
 
     return {
         "kind": "tab",
@@ -152,6 +153,7 @@ async def build_tree(
     app: iterm2.App,
     buried_positions: dict[str, str] | None = None,
     registry: Registry | None = None,
+    tab_names: dict[str, str] | None = None,
 ) -> dict:
     """Walk the App → Window → Tab → Session tree and return a JSON snapshot."""
     if buried_positions is None:
@@ -185,7 +187,9 @@ async def build_tree(
         for tab_idx, tab in enumerate(window.tabs):
             buried_here = buried_by_tab.get(str(tab.tab_id), [])
             tabs.append(
-                await _tab_node(tab, tab_idx, active_tab_id, active_session_id, buried_here, ps_output, registry)
+                await _tab_node(
+                    tab, tab_idx, active_tab_id, active_session_id, buried_here, ps_output, registry, tab_names
+                )
             )
 
         tab_count = len(tabs)

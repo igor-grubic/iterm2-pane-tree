@@ -54,13 +54,15 @@ class State:
         self.registry: Registry = registry if registry is not None else Registry()
         self.snapshot: dict[str, Any] = {"windows": []}
         self.buried_positions: dict[str, str] = {}  # session_id → tab_id
+        self.tab_names: dict[str, str] = {}  # tab_id → custom name
         self.lock = threading.Lock()
 
     async def refresh(self) -> None:
         with self.lock:
             buried_pos = dict(self.buried_positions)
+            tab_names = dict(self.tab_names)
         try:
-            snap = await tree.build_tree(self.app, buried_pos, self.registry)
+            snap = await tree.build_tree(self.app, buried_pos, self.registry, tab_names)
         except Exception as exc:
             log.exception("tree build failed: %s", exc)
             return
@@ -267,6 +269,26 @@ class _Handler(BaseHTTPRequestHandler):
                 sid = body.get("id", "")
                 result = self.state.call_async(lambda: actions.close_session(self.state.app, sid))
                 self._send_json(result)
+                return
+            if path == "/api/rename-tab":
+                tab_id = body.get("id", "")
+                name = (body.get("name") or "").strip()
+                if not tab_id:
+                    for w in self.state.get_snapshot().get("windows", []):
+                        if w.get("active"):
+                            for t in w.get("tabs", []):
+                                if t.get("active"):
+                                    tab_id = t["id"]
+                                    break
+                if not tab_id:
+                    self._send_json({"ok": False, "error": "no tab id"})
+                    return
+                with self.state.lock:
+                    if name:
+                        self.state.tab_names[tab_id] = name
+                    else:
+                        self.state.tab_names.pop(tab_id, None)
+                self._send_json({"ok": True})
                 return
             if path.startswith("/api/ext/"):
                 if self._dispatch_ext_route("POST", path, body):

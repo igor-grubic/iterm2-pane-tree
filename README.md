@@ -12,6 +12,7 @@ Live tree of every iTerm2 window, tab, and pane — click to focus, create, or c
 
 - Live hierarchical tree: window → tab → pane, updated in real time
 - Click any node to focus it immediately
+- Rename tabs inline (hover → ✎) or programmatically via `POST /api/rename-tab`; custom names persist until the tab or window is closed
 - Per-pane status popup: current job, working directory, recent terminal output
 - Click the folder pill to focus the pane; on the active pane, hover reveals "copy" and clicking copies its working directory to the clipboard
 - Create new tabs and windows from the panel

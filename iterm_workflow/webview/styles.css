@@ -113,6 +113,47 @@ main {
 .node.tab:hover  { background: var(--bg-hover); }
 .node.tab.active { color: #88b8cc; border-left-color: var(--accent); }
 
+.node.tab .node-label {
+  flex: 0 1 auto;
+  max-width: calc(100% - 100px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.tab-edit-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  font-size: 11px;
+  background: var(--btn-bg);
+  border: 1px solid var(--btn-border);
+  border-radius: 5px;
+  cursor: pointer;
+  color: var(--fg-muted);
+  flex-shrink: 0;
+  margin-left: 4px;
+  transition: background 0.1s, border-color 0.1s, color 0.1s;
+}
+.node.tab:hover .tab-edit-btn { display: inline-flex; }
+.tab-edit-btn:hover { background: var(--btn-hover); border-color: #555562; color: var(--fg); }
+
+.tab-edit-input {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--accent);
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  outline: none;
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+}
+
 /* ── panes — the stars ──────────────────────────────────────────── */
 .node.pane {
   font-size: 13px;

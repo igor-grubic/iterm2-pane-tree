@@ -46,7 +46,7 @@ The `/api/tree` endpoint returns a JSON object describing the full iTerm2 sessio
 |-------|------|-------------|
 | `kind` | `"tab"` | Node discriminator |
 | `id` | string | iTerm2 tab ID (stringified) |
-| `title` | string | Display label, format: `"Tab N"` (1-indexed) |
+| `title` | string | Display label: custom name if one is set via `POST /api/rename-tab`, otherwise `"Tab N"` (1-indexed) |
 | `active` | boolean | Whether this is the frontmost tab in its window |
 | `panes` | array | Ordered list of session nodes (visible panes first, then buried) |
 
