@@ -2,11 +2,8 @@
 
 Live tree of every iTerm2 window, tab, and pane — purpose-built for orchestrating many Claude Code sessions side-by-side.
 
-[![CI](https://github.com/igorgrubic/iterm2-claude-cockpit/actions/workflows/ci.yml/badge.svg)](https://github.com/igorgrubic/iterm2-claude-cockpit/actions/workflows/ci.yml)
 [![iTerm2 3.5+](https://img.shields.io/badge/iTerm2-3.5%2B-blue)](https://iterm2.com)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)](https://iterm2.com/python-api/)
-
-Live tree of every iTerm2 window, tab, and pane — click to focus, create, or close sessions from a persistent side panel.
 
 ![iterm2-claude-cockpit panel showing the window/tab/pane tree alongside Claude Code](docs/demo.gif)
 
@@ -67,7 +64,23 @@ iTerm2 will download its bundled Python runtime and set up the environment autom
 
 Click **Allow** when iTerm2 asks for Python API access. The daemon starts immediately and will auto-launch on every subsequent iTerm2 start.
 
-### 5. Show the panel
+### 5. Set up Claude Code status tracking
+
+The Claude extension is enabled by default. Run its interactive installer to wire up accurate `running` / `idle` / `attention` states via Claude Code hooks:
+
+**Option A:**
+```bash
+python3 "$HOME/Library/Application Support/iTerm2/Scripts/AutoLaunch/iterm_workflow/iterm_workflow/extensions/claude/hooks/install.py"
+```
+
+**Option B:**
+```bash
+python3 ~/code/iterm_workflow/iterm_workflow/extensions/claude/hooks/install.py
+```
+
+The installer explains every change, shows a before/after diff, and asks for confirmation before touching anything. It backs up your existing `~/.claude/settings.json` first.
+
+### 6. Show the panel
 
 `View → Toolbelt → Show Toolbelt`, then right-click the toolbelt and tick **Worktree**.
 
