@@ -23,6 +23,7 @@ from urllib.parse import parse_qs, urlparse
 
 import iterm2
 
+from extensions import _loader as ext_loader
 from extensions._api import Registry
 
 from . import actions, tree
@@ -30,6 +31,7 @@ from . import actions, tree
 log = logging.getLogger("iterm_workflow.http")
 
 WEBVIEW_DIR = Path(__file__).resolve().parent.parent / "webview"
+_PLUGIN_VERSION = "0.1.0"  # keep in sync with __init__.py and pyproject.toml
 
 _CONTENT_TYPES = {
     ".html": "text/html; charset=utf-8",
@@ -205,6 +207,17 @@ class _Handler(BaseHTTPRequestHandler):
             return
         if path == "/api/tree":
             self._send_json(self.state.get_snapshot())
+            return
+        if path == "/api/about":
+            self._send_json(
+                {
+                    "version": _PLUGIN_VERSION,
+                    "extensions": {
+                        "enabled": ext_loader.list_enabled(),
+                        "available": ext_loader.list_available(),
+                    },
+                }
+            )
             return
         if path == "/api/session-lines":
             qs = parse_qs(urlparse(self.path).query)

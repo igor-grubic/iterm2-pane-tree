@@ -18,6 +18,7 @@ Live tree of every iTerm2 window, tab, and pane — click to focus, create, or c
 - Create new tabs and windows from the panel
 - Bury and unbury sessions (hide a running pane without closing it)
 - YAML project layouts — define a named set of tabs and open them with one click
+- Settings panel (⚙ button) — shows the plugin version and installed extensions at a glance
 - Optional extensions — opt-in modules can enrich the snapshot, inject CSS/JS into the panel, and add HTTP routes (see [Extensions](#extensions))
 - Zero external dependencies — stdlib only, beyond the `iterm2` library bundled with iTerm2
 - Runs as an AutoLaunch daemon; starts automatically with iTerm2

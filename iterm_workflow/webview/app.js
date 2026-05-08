@@ -435,9 +435,7 @@ window.PaneTreeExt = window.PaneTreeExt || {
     return null;
   }
 
-  let itermCheatsheetCache = null;
-
-  async function openItermCheatsheet() {
+  async function openModal(title, loadFn) {
     if (activePopup) { dismissPopup(); return; }
     const popup = document.createElement("div");
     popup.className = "iterm-cheatsheet-popup";
@@ -445,16 +443,16 @@ window.PaneTreeExt = window.PaneTreeExt || {
 
     const header = document.createElement("div");
     header.className = "iterm-cheatsheet-header";
-    const title = document.createElement("span");
-    title.className = "iterm-cheatsheet-title";
-    title.textContent = "iTerm2 cheatsheet";
+    const titleEl = document.createElement("span");
+    titleEl.className = "iterm-cheatsheet-title";
+    titleEl.textContent = title;
     const close = document.createElement("button");
     close.type = "button";
     close.className = "iterm-cheatsheet-close";
     close.textContent = "×";
     close.setAttribute("aria-label", "Close");
     close.addEventListener("click", (ev) => { ev.stopPropagation(); dismissPopup(); });
-    header.append(title, close);
+    header.append(titleEl, close);
 
     const body = document.createElement("div");
     body.className = "iterm-cheatsheet-body";
@@ -465,20 +463,62 @@ window.PaneTreeExt = window.PaneTreeExt || {
     activePopup = popup;
 
     try {
+      await loadFn(body);
+    } catch (err) {
+      body.textContent = "Failed to load: " + err.message;
+    }
+  }
+
+  let itermCheatsheetCache = null;
+
+  async function openItermCheatsheet() {
+    await openModal("iTerm2 cheatsheet", async (body) => {
       if (itermCheatsheetCache === null) {
         const res = await fetch("/static/iterm_cheatsheet.html", { cache: "no-store" });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         itermCheatsheetCache = await res.text();
       }
       body.innerHTML = itermCheatsheetCache;
-    } catch (err) {
-      body.textContent = "Failed to load cheatsheet: " + err.message;
-    }
+    });
+  }
+
+  async function openSettings() {
+    await openModal("Settings", async (body) => {
+      const res = await fetch("/api/about", { cache: "no-store" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+
+      const dl = document.createElement("dl");
+      dl.className = "settings-list";
+
+      const addRow = (term, value) => {
+        const dt = document.createElement("dt");
+        dt.textContent = term;
+        const dd = document.createElement("dd");
+        dd.textContent = value;
+        dl.append(dt, dd);
+      };
+
+      addRow("Version", data.version || "(unknown)");
+      const enabled = data.extensions?.enabled || [];
+      addRow("Enabled extensions", enabled.length ? enabled.join(", ") : "(none)");
+      const available = data.extensions?.available || [];
+      const disabled = available.filter((n) => !enabled.includes(n));
+      addRow("Available (disabled)", disabled.length ? disabled.join(", ") : "(none)");
+
+      body.innerHTML = "";
+      body.appendChild(dl);
+    });
   }
 
   document.getElementById("btn-cheatsheet").addEventListener("click", (ev) => {
     ev.stopPropagation();
     openItermCheatsheet();
+  });
+
+  document.getElementById("btn-settings").addEventListener("click", (ev) => {
+    ev.stopPropagation();
+    openSettings();
   });
 
   document.getElementById("btn-split-vertical").addEventListener("click", async () => {

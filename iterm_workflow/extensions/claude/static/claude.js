@@ -94,22 +94,20 @@
   }
 
   function injectButton() {
-    const footer = document.querySelector("footer");
-    if (!footer) return false;
-    if (footer.querySelector(".claude-cheatsheet-btn")) return true;
+    const slot = document.getElementById("footer-icons");
+    if (!slot) return false;
+    if (slot.querySelector(".claude-cheatsheet-btn")) return true;
 
-    const row = document.createElement("div");
-    row.className = "row";
     const btn = document.createElement("button");
     btn.type = "button";
-    btn.className = "claude-cheatsheet-btn";
-    btn.textContent = "✦ Claude Cheatsheet";
+    btn.className = "icon-btn claude-cheatsheet-btn";
+    btn.title = "Claude Code cheatsheet";
+    btn.innerHTML = '<span class="icon-btn-glyph">✦</span><span class="icon-btn-label">Claude</span>';
     btn.addEventListener("click", (ev) => { ev.stopPropagation(); openCheatsheet(); });
-    row.appendChild(btn);
 
-    const status = footer.querySelector(".status");
-    if (status) footer.insertBefore(row, status);
-    else footer.appendChild(row);
+    const settingsBtn = slot.querySelector("#btn-settings");
+    if (settingsBtn) slot.insertBefore(btn, settingsBtn);
+    else slot.appendChild(btn);
     return true;
   }
 

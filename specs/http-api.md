@@ -12,6 +12,27 @@ Returns the panel HTML (`webview/index.html` with extension assets injected).
 
 ---
 
+### `GET /api/about`
+
+Returns the plugin version and the list of extensions (both enabled and available).
+
+**Response:** `200 application/json`
+
+```json
+{
+  "version": "0.1.0",
+  "extensions": {
+    "enabled": ["claude"],
+    "available": ["claude"]
+  }
+}
+```
+
+`enabled` — extensions currently active (from `extensions.json`).  
+`available` — all extensions found on disk (superset of `enabled`).
+
+---
+
 ### `GET /api/tree`
 
 Returns the current session tree snapshot.

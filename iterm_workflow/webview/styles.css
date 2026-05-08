@@ -402,6 +402,24 @@ button.primary:hover { background: #6cb1ff; }
   margin-left: 2px;
 }
 
+/* ── icon-btn row (compact cheatsheet / settings buttons) ────────── */
+footer .row.icons { justify-content: flex-start; gap: 4px; }
+
+.icon-btn {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 52px;
+  padding: 4px 8px;
+  gap: 2px;
+}
+
+.icon-btn-glyph { font-size: 14px; line-height: 1; color: var(--fg-dim); }
+.icon-btn-label { font-size: 9px; color: var(--fg-muted); letter-spacing: 0.03em; }
+.icon-btn:hover .icon-btn-glyph { color: var(--fg); }
+.icon-btn:hover .icon-btn-label { color: var(--fg); }
+
 /* ── iTerm cheatsheet popup ─────────────────────────────────────── */
 .iterm-cheatsheet-popup {
   position: fixed;
@@ -532,6 +550,36 @@ button.primary:hover { background: #6cb1ff; }
 }
 
 .iterm-cheatsheet-body .cheatsheet-source a:hover { text-decoration: underline; }
+
+/* ── settings panel (rendered inside cheatsheet popup body) ─────── */
+.iterm-cheatsheet-body .settings-list {
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0 14px;
+  list-style: none;
+}
+
+.iterm-cheatsheet-body .settings-list dt {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--fg-muted);
+  padding: 6px 0 5px;
+  border-bottom: 1px solid var(--border);
+}
+
+.iterm-cheatsheet-body .settings-list dd {
+  margin: 0;
+  padding: 6px 0 5px;
+  color: var(--fg);
+  border-bottom: 1px solid var(--border);
+}
+
+.iterm-cheatsheet-body .settings-list dt:last-of-type,
+.iterm-cheatsheet-body .settings-list dd:last-child { border-bottom: none; }
 
 /* ── misc ───────────────────────────────────────────────────────── */
 .hidden { display: none !important; }

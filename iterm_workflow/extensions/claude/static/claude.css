@@ -24,14 +24,10 @@
 }
 
 /* ── Cheatsheet button ─────────────────────────────────────────── */
-.claude-cheatsheet-btn {
-  color: var(--clr-running);
-  border-color: #3a2c12;
-}
-
-.claude-cheatsheet-btn:hover {
-  border-color: var(--clr-running);
-}
+.claude-cheatsheet-btn .icon-btn-glyph { color: var(--clr-running); }
+.claude-cheatsheet-btn .icon-btn-label { color: var(--clr-running); }
+.claude-cheatsheet-btn { border-color: #3a2c12; }
+.claude-cheatsheet-btn:hover { border-color: var(--clr-running); }
 
 /* ── Cheatsheet popup ──────────────────────────────────────────── */
 .claude-cheatsheet-popup {
