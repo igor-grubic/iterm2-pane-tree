@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import asyncio
+
 import iterm2
 
 
@@ -111,4 +113,18 @@ async def close_session(app: iterm2.App, session_id: str) -> dict:
     if session is None:
         return {"ok": False, "error": f"no session {session_id}"}
     await session.async_close(force=True)
+    return {"ok": True}
+
+
+async def move_tab(app: iterm2.App, window_id: str, tab_id: str, position: int) -> dict:
+    window = app.get_window_by_id(window_id)
+    if window is None:
+        return {"ok": False, "error": f"no window {window_id}"}
+    tabs = list(window.tabs)
+    tab = next((t for t in tabs if str(t.tab_id) == tab_id), None)
+    if tab is None:
+        return {"ok": False, "error": f"no tab {tab_id}"}
+    tabs.remove(tab)
+    tabs.insert(max(0, min(position, len(tabs))), tab)
+    await asyncio.wait_for(window.async_set_tabs(tabs), timeout=3.0)
     return {"ok": True}

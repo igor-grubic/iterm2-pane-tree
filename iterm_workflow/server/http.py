@@ -58,6 +58,9 @@ class State:
         self.buried_positions: dict[str, str] = {}  # session_id → tab_id
         self.tab_names: dict[str, str] = {}  # tab_id → custom name
         self.lock = threading.Lock()
+        # Set True while a structural write (e.g. move-tab) is in flight to prevent
+        # layout-change notifications from flooding iTerm2 with concurrent reads.
+        self.suppress_refresh: bool = False
 
     async def refresh(self) -> None:
         with self.lock:
@@ -281,6 +284,22 @@ class _Handler(BaseHTTPRequestHandler):
             if path == "/api/close-session":
                 sid = body.get("id", "")
                 result = self.state.call_async(lambda: actions.close_session(self.state.app, sid))
+                self._send_json(result)
+                return
+            if path == "/api/move-tab":
+                tab_id = body.get("tab_id", "")
+                window_id = body.get("window_id", "")
+                position = int(body.get("position", 0))
+
+                async def _move() -> dict:
+                    self.state.suppress_refresh = True
+                    try:
+                        return await actions.move_tab(self.state.app, window_id, tab_id, position)
+                    finally:
+                        self.state.suppress_refresh = False
+                        await self.state.refresh()
+
+                result = self.state.call_async(_move, timeout=8.0)
                 self._send_json(result)
                 return
             if path == "/api/rename-tab":

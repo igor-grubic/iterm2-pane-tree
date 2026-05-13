@@ -101,6 +101,24 @@ Create a new tab or window.
 
 ---
 
+### `POST /api/move-tab`
+
+Move a tab to a new position within its window.
+
+**Request body:** `application/json`
+
+```json
+{ "tab_id": "<tab id>", "window_id": "<window id>", "position": <int> }
+```
+
+`position` is the 0-based target index after the move, clamped to `[0, tab_count - 1]`. Cross-window moves are not supported.
+
+The daemon briefly suppresses layout-change notification callbacks during the call to prevent concurrent reads from deadlocking iTerm2's RPC connection. A single explicit refresh is issued after the operation completes.
+
+**Response:** `200 application/json` — `{ "ok": true }` or `{ "ok": false, "error": "..." }`
+
+---
+
 ### `POST /api/rename-tab`
 
 Set a custom display name for a tab. The name persists in the daemon's memory until the tab or window is closed.

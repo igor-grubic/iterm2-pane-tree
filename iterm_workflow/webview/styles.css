@@ -110,8 +110,10 @@ main {
   padding: 7px 8px 5px 22px;
 }
 
-.node.tab:hover  { background: var(--bg-hover); }
-.node.tab.active { color: #88b8cc; border-left-color: var(--accent); }
+.node.tab:hover    { background: var(--bg-hover); }
+.node.tab.active   { color: #88b8cc; border-left-color: var(--accent); }
+.node.tab.drag-over { border-left-color: var(--accent); background: rgba(136, 184, 204, 0.12); }
+.node.tab.dragging  { opacity: 0.4; }
 
 .node.tab .node-label {
   flex: 0 1 auto;

@@ -52,7 +52,8 @@ async def main(connection: iterm2.Connection) -> None:
     async def _periodic_refresh() -> None:
         while True:
             await asyncio.sleep(1)
-            await state.refresh()
+            if not state.suppress_refresh:
+                await state.refresh()
 
     asyncio.create_task(_periodic_refresh())
 
@@ -66,7 +67,8 @@ async def main(connection: iterm2.Connection) -> None:
     log.info("registered toolbelt %r at http://%s:%d/", TOOL_NAME, HOST, PORT)
 
     async def on_change(_connection, _notification) -> None:
-        await state.refresh()
+        if not state.suppress_refresh:
+            await state.refresh()
 
     await iterm2.notifications.async_subscribe_to_layout_change_notification(connection, on_change)
     await iterm2.notifications.async_subscribe_to_new_session_notification(connection, on_change)
