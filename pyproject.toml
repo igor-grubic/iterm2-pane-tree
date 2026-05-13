@@ -7,7 +7,7 @@ name = "iterm2-claude-cockpit"
 version = "0.1.0"
 description = "iTerm2 toolbelt cockpit for managing many Claude Code panes — live window/tab/pane tree with per-pane Claude status, focus, create, rename, and bury controls."
 readme = "README.md"
-license = { file = "LICENSE" }
+license = "MIT"
 authors = [{ name = "Igor Grubic", email = "igorgrubic@users.noreply.github.com" }]
 requires-python = ">=3.10"
 dependencies = ["iterm2"]

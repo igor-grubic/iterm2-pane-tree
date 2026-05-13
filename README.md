@@ -52,13 +52,13 @@ ln -s "$HOME/code/iterm_workflow" \
   "$HOME/Library/Application Support/iTerm2/Scripts/AutoLaunch/iterm_workflow"
 ```
 
-> **Why `iterm_workflow`?** iTerm2's script loader requires the folder name, inner package name, and entry script name to all match. The repo is named `iterm2-claude-cockpit` but must be installed as `iterm_workflow`.
+> **Why `iterm_workflow` and why does the path matter?** iTerm2's script loader requires the folder name, inner package name, and entry script name to all match. The repo is named `iterm2-claude-cockpit` but must be installed as `iterm_workflow`. For Option B the symlink name and the **real directory name** must both be `iterm_workflow` — if you clone to a differently-named directory (e.g. `~/code/iterm2-claude-cockpit`) the autolaunch will silently fail. Stick to `~/code/iterm_workflow` or use Option A.
 
 ### 3. Run once from the Scripts menu
 
 `Scripts → AutoLaunch → iterm_workflow → iterm_workflow.py`
 
-iTerm2 will download its bundled Python runtime and set up the environment automatically. This only happens on the first run.
+iTerm2 will install dependencies and create an `iterm2env/` virtual environment inside the script folder. **This step is required — autolaunch will not work until it has been completed at least once.** It only needs to happen once per installation.
 
 ### 4. Allow the API permission prompt
 
@@ -108,8 +108,16 @@ Then re-run from `Scripts → AutoLaunch → iterm_workflow → iterm_workflow.p
 
 ### Uninstalling
 
+**Option A (cloned directly):**
+```bash
+rm -rf "$HOME/Library/Application Support/iTerm2/Scripts/AutoLaunch/iterm_workflow"
+```
+
+**Option B (symlinked):**
 ```bash
 rm "$HOME/Library/Application Support/iTerm2/Scripts/AutoLaunch/iterm_workflow"
+# optionally also remove the repo:
+rm -rf ~/code/iterm_workflow
 ```
 
 ## Project layouts
@@ -206,7 +214,23 @@ The daemon isn't running. Check the console for errors, then re-run the script f
 
 ### AutoLaunch never started the script — no permission prompt appeared
 
-The venv doesn't exist yet. Run the script once manually from `Scripts → AutoLaunch → iterm_workflow → iterm_workflow.py`. iTerm2 will build the environment on first run.
+The `iterm2env/` virtual environment inside the script folder hasn't been created yet. iTerm2 requires it before it will autolaunch the script.
+
+Run the script once manually:
+
+`Scripts → AutoLaunch → iterm_workflow → iterm_workflow.py`
+
+iTerm2 will install dependencies and create `iterm2env/` on this first run. After that, autolaunch will work on every subsequent iTerm2 start.
+
+To verify the environment was created, check that this directory exists:
+
+```bash
+ls "$HOME/Library/Application Support/iTerm2/Scripts/AutoLaunch/iterm_workflow/iterm2env"
+# or for Option B:
+ls ~/code/iterm_workflow/iterm2env
+```
+
+If it does not exist after running manually, check the console (`Scripts → Manage → Console`) for errors.
 
 ---
 
