@@ -18,9 +18,9 @@ jobs:
       - name: Install ruff
         run: pip install ruff
       - name: Lint
-        run: ruff check iterm_workflow/
+        run: ruff check iterm2_claude_cockpit/
       - name: Format check
-        run: ruff format --check iterm_workflow/
+        run: ruff format --check iterm2_claude_cockpit/
 
   typecheck:
     name: Type check
@@ -33,7 +33,7 @@ jobs:
       - name: Install mypy
         run: pip install mypy
       - name: Type check
-        run: mypy iterm_workflow/
+        run: mypy iterm2_claude_cockpit/
 
   validate-yaml:
     name: Validate project YAML
@@ -50,7 +50,7 @@ jobs:
           python - <<'EOF'
           import yaml, pathlib, sys
           errors = []
-          for f in pathlib.Path("iterm_workflow/projects").glob("*.yaml"):
+          for f in pathlib.Path("iterm2_claude_cockpit/projects").glob("*.yaml"):
               try:
                   data = yaml.safe_load(f.read_text())
                   assert isinstance(data, dict), f"{f}: expected a mapping"

@@ -6,7 +6,7 @@
 
 ## Startup sequence
 
-1. iTerm2 launches `iterm_workflow/iterm_workflow.py` automatically on start
+1. iTerm2 launches `iterm2_claude_cockpit/iterm2_claude_cockpit.py` automatically on start
 2. The daemon connects to iTerm2 via the Python API
 3. Enabled extensions are loaded from `extensions.json` via `extensions/_loader.py`
 4. The HTTP server starts on port 9876
@@ -19,7 +19,7 @@
 iTerm2 runtime
     │  update events
     ▼
-iterm_workflow.py  ──────────────────────────────────────────┐
+iterm2_claude_cockpit.py  ──────────────────────────────────────────┐
     │                                                         │
     │  on change: invalidate tree cache                       │
     ▼                                                         │
@@ -44,7 +44,7 @@ webview/index.html + app.js                                   │
 
 ## Module responsibilities
 
-### `iterm_workflow.py`
+### `iterm2_claude_cockpit.py`
 Entry point. Connects to iTerm2, bootstraps extensions, starts the HTTP server, registers `async_monitor` hooks for window/tab/session changes. Owns the `buried_positions` dict (maps session_id → last-known tab_id, so buried sessions can be re-shown under the right tab).
 
 ### `server/tree.py`

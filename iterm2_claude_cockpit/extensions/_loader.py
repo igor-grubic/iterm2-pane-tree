@@ -9,7 +9,7 @@ from pathlib import Path
 
 from ._api import ExtensionAPI, Registry
 
-log = logging.getLogger("iterm_workflow.extensions")
+log = logging.getLogger("iterm2_claude_cockpit.extensions")
 
 PKG_ROOT = Path(__file__).resolve().parent.parent
 EXT_ROOT = PKG_ROOT / "extensions"

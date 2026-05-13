@@ -4,7 +4,7 @@ This document is the authoritative contract for the extension system. The v1 API
 
 ## Loading
 
-An extension is a subpackage of `iterm_workflow.extensions` with an `__init__.py` that exposes:
+An extension is a subpackage of `iterm2_claude_cockpit.extensions` with an `__init__.py` that exposes:
 
 ```python
 def register(api: ExtensionAPI) -> None: ...
@@ -12,7 +12,7 @@ def register(api: ExtensionAPI) -> None: ...
 
 The loader calls `register(api)` at daemon startup. If `register` raises, the extension is skipped and the error is logged — it must not crash the daemon.
 
-Extensions are opt-in. They are listed in `iterm_workflow/extensions.json`:
+Extensions are opt-in. They are listed in `iterm2_claude_cockpit/extensions.json`:
 
 ```json
 {
@@ -25,9 +25,9 @@ Extensions are opt-in. They are listed in `iterm_workflow/extensions.json`:
 Enable/disable via CLI (requires daemon restart):
 
 ```bash
-python -m iterm_workflow ext enable <name>
-python -m iterm_workflow ext disable <name>
-python -m iterm_workflow ext list
+python -m iterm2_claude_cockpit ext enable <name>
+python -m iterm2_claude_cockpit ext disable <name>
+python -m iterm2_claude_cockpit ext list
 ```
 
 ## ExtensionAPI
@@ -123,7 +123,7 @@ api.add_signal_dir_source("claude", "/tmp/iterm-pane-tree/claude")
 
 **In the enricher:** declare `signals` as a kwarg and receive `signals["<name>"][<tty-basename>]` for the current session's TTY. The `node["tty"]` field (e.g. `/dev/ttys003`) gives the full path; `Path(tty).name` gives the basename to look up.
 
-**Shipped hook script:** `iterm_workflow/extensions/claude/hooks/notify.sh` is the reference implementation. See the "Claude Code integration" section in the README for the `~/.claude/settings.json` snippet.
+**Shipped hook script:** `iterm2_claude_cockpit/extensions/claude/hooks/notify.sh` is the reference implementation. See the "Claude Code integration" section in the README for the `~/.claude/settings.json` snippet.
 
 ## Webview extension points
 
@@ -148,7 +148,7 @@ window.PaneTreeExt = {
 ## Example extension skeleton
 
 ```python
-# iterm_workflow/extensions/myext/__init__.py
+# iterm2_claude_cockpit/extensions/myext/__init__.py
 from __future__ import annotations
 from pathlib import Path
 
@@ -169,7 +169,7 @@ async def _ping(body: bytes) -> dict:
 ```
 
 ```javascript
-// iterm_workflow/extensions/myext/static/myext.js
+// iterm2_claude_cockpit/extensions/myext/static/myext.js
 window.PaneTreeExt.paneRowDecorators.push((row, node) => {
   if (node["ext.myext.active"]) row.classList.add("myext-active");
 });

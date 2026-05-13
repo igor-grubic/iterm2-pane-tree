@@ -6,20 +6,31 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed
+- Renamed the install name from `iterm_workflow` to `iterm2_claude_cockpit` — the folder name, inner package, entry script, and `setup.cfg` package name all now match the distribution name (`iterm2-claude-cockpit`). Existing installs must migrate (see README → Migrating from `iterm_workflow`).
+- Toolbelt panel display name changed from "Worktree" to "Claude Cockpit".
+
+### Fixed
+- `setup.cfg`: added `packages = find:` to prevent newer setuptools from failing with a "multiple top-level packages" error during environment setup, which caused a "malformed script" error at autolaunch.
+- `pyproject.toml`: corrected `license` field (was referencing a missing `LICENSE` file).
+- Installation docs: step 3 "run once" now explains that it creates the required `iterm2env/` virtual environment — autolaunch won't work without it.
+- Troubleshooting: expanded "AutoLaunch never started" with how to verify the environment exists.
+- Uninstall command: split by install option; Option A (direct clone) now uses `rm -rf`.
+
 ### Added
 - Settings button (⚙) in the footer icon row — opens a panel showing the plugin version and installed extensions (enabled and available-but-disabled).
-- Extension system: opt-in modules under `iterm_workflow/extensions/<name>/` with a small `register(api)` surface for snapshot enrichment, webview asset injection (CSS/JS), and HTTP route registration. Enable/disable with `python -m iterm_workflow ext enable|disable <name>`.
+- Extension system: opt-in modules under `iterm2_claude_cockpit/extensions/<name>/` with a small `register(api)` surface for snapshot enrichment, webview asset injection (CSS/JS), and HTTP route registration. Enable/disable with `python -m iterm2_claude_cockpit ext enable|disable <name>`.
 - `claude` bundled extension: detects Claude-driven panes (job match + descendant process walk), tags them as `ext.claude.active`, and decorates them with an accent color and `✦` badge. Enabled by default; `ext disable claude` for a vanilla worktree panel.
 - Click the folder pill on a pane to focus it; on the active pane, the pill reveals "copy" on hover and clicking copies its working directory to the clipboard.
 - Editable tab names: hover a tab to reveal a ✎ rename button; type a new name and press Enter to save. Custom names persist until the tab or window is closed. Names are also settable programmatically via `POST /api/rename-tab`.
 - `api.add_signal_dir_source(name, directory)` — extension API primitive for receiving TTY-keyed JSON payloads from in-pane hook scripts; enables hook-driven status without polling or screen-scraping.
 - `tty` field on session snapshot nodes — the controlling TTY path (e.g. `/dev/ttys003`).
-- Hook script `iterm_workflow/extensions/claude/hooks/notify.sh` — wire up as a Claude Code `UserPromptSubmit`/`Stop`/`Notification` hook for accurate per-pane status (see README).
+- Hook script `iterm2_claude_cockpit/extensions/claude/hooks/notify.sh` — wire up as a Claude Code `UserPromptSubmit`/`Stop`/`Notification` hook for accurate per-pane status (see README).
 
 - Drag-and-drop tab reordering: drag a tab row in the panel to reorder it within its window. The new order is applied in iTerm2 via `POST /api/move-tab`.
 
 ### Changed
-- Renamed the repository from `iterm2-pane-tree` to `iterm2-claude-cockpit` to better reflect its primary use case: orchestrating many parallel Claude Code panes from the iTerm2 toolbelt. Existing clones continue to work via GitHub's automatic redirect; the install path (`…/AutoLaunch/iterm_workflow`) is unchanged.
+- Renamed the repository from `iterm2-pane-tree` to `iterm2-claude-cockpit` to better reflect its primary use case: orchestrating many parallel Claude Code panes from the iTerm2 toolbelt. Existing clones continue to work via GitHub's automatic redirect; the install path (`…/AutoLaunch/iterm2_claude_cockpit`) is unchanged.
 - Cheatsheet buttons (iTerm and Claude) are now compact icon buttons (glyph + label) on a single shared row, reducing footer height.
 - Closing a pane now shows a small inline `sure?` confirmation next to the × button instead of closing immediately. Click `no` (or press `Escape` / click outside) to cancel.
 - `claude` extension detection: replaced the fragile descendant-PID walk and broad screen-scrape with a `ps -t <tty>` check (active) and hook signal files (state). States are now `idle`, `running`, `attention`, `plan`; the `ext.claude.mode` field is renamed to `ext.claude.state`.
