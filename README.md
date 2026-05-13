@@ -40,14 +40,14 @@ No separate Python installation needed — iTerm2 bundles its own runtime.
 **Option A — recommended for most users.** Clone directly into the AutoLaunch directory:
 
 ```bash
-git clone https://github.com/igorgrubic/iterm2-claude-cockpit.git \
+git clone https://github.com/igor-grubic/iterm2-claude-cockpit.git \
   "$HOME/Library/Application Support/iTerm2/Scripts/AutoLaunch/iterm_workflow"
 ```
 
 **Option B — recommended for developers.** Clone anywhere and symlink:
 
 ```bash
-git clone https://github.com/igorgrubic/iterm2-claude-cockpit.git ~/code/iterm_workflow
+git clone https://github.com/igor-grubic/iterm2-claude-cockpit.git ~/code/iterm_workflow
 ln -s "$HOME/code/iterm_workflow" \
   "$HOME/Library/Application Support/iTerm2/Scripts/AutoLaunch/iterm_workflow"
 ```
