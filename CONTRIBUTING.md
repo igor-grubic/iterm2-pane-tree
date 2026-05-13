@@ -17,9 +17,9 @@ Open an issue with the label `enhancement`. Describe the use case, not just the 
 ## Development setup
 
 ```bash
-git clone https://github.com/igorgrubic/iterm2-claude-cockpit.git ~/code/iterm_workflow
-ln -s "$HOME/code/iterm_workflow" \
-  "$HOME/Library/Application Support/iTerm2/Scripts/AutoLaunch/iterm_workflow"
+git clone https://github.com/igorgrubic/iterm2-claude-cockpit.git ~/code/iterm2_claude_cockpit
+ln -s "$HOME/code/iterm2_claude_cockpit" \
+  "$HOME/Library/Application Support/iTerm2/Scripts/AutoLaunch/iterm2_claude_cockpit"
 ```
 
 Install dev tools (these run on your local Python, not inside iTerm2's env):
@@ -31,14 +31,14 @@ pip install ruff mypy
 Lint and format:
 
 ```bash
-ruff check iterm_workflow/
-ruff format iterm_workflow/
+ruff check iterm2_claude_cockpit/
+ruff format iterm2_claude_cockpit/
 ```
 
 Type check:
 
 ```bash
-mypy iterm_workflow/
+mypy iterm2_claude_cockpit/
 ```
 
 ## Code style
@@ -49,11 +49,11 @@ mypy iterm_workflow/
 
 ## iTerm2 structural constraint
 
-The two-level folder layout (`iterm_workflow/iterm_workflow/iterm_workflow.py`) and `setup.cfg` are required by iTerm2's Full Environment loader and cannot be changed.
+The two-level folder layout (`iterm2_claude_cockpit/iterm2_claude_cockpit/iterm2_claude_cockpit.py`) and `setup.cfg` are required by iTerm2's Full Environment loader and cannot be changed.
 
 ## Writing an extension
 
-User-facing behavior that isn't strictly part of "manage iTerm2 windows/tabs/panes" should live in an extension under `iterm_workflow/extensions/<name>/`, not in core. Each extension is a folder with `__init__.py` exposing `register(api)`. See the `claude` extension for a worked example and the README's [Extensions](README.md#extensions) section for the v1 API surface.
+User-facing behavior that isn't strictly part of "manage iTerm2 windows/tabs/panes" should live in an extension under `iterm2_claude_cockpit/extensions/<name>/`, not in core. Each extension is a folder with `__init__.py` exposing `register(api)`. See the `claude` extension for a worked example and the README's [Extensions](README.md#extensions) section for the v1 API surface.
 
 Use the `ext.<name>.<field>` namespace when adding fields to session nodes. Don't write top-level snapshot keys from an extension — collisions become a future problem.
 

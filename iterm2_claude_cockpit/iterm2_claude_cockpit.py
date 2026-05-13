@@ -25,14 +25,14 @@ from server import http as http_server  # noqa: E402
 
 PORT = 9876
 HOST = "127.0.0.1"
-TOOL_NAME = "Worktree"
-TOOL_IDENTIFIER = "com.igrubic.iterm-workflow"
+TOOL_NAME = "Claude Cockpit"
+TOOL_IDENTIFIER = "com.igrubic.iterm2-claude-cockpit"
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s %(levelname)s %(name)s: %(message)s",
 )
-log = logging.getLogger("iterm_workflow")
+log = logging.getLogger("iterm2_claude_cockpit")
 
 
 async def main(connection: iterm2.Connection) -> None:

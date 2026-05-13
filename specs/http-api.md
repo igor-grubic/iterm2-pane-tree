@@ -151,7 +151,7 @@ Bury (hide without closing) or unbury a session.
 
 ### `POST /api/project`
 
-Open a named project layout from `iterm_workflow/projects/<name>.yaml`.
+Open a named project layout from `iterm2_claude_cockpit/projects/<name>.yaml`.
 
 **Request body:** `application/json`
 
@@ -167,7 +167,7 @@ Open a named project layout from `iterm_workflow/projects/<name>.yaml`.
 
 ### `GET /static/<path>`
 
-Serves files from `iterm_workflow/webview/`. Used by the panel for `app.js`, `styles.css`, etc.
+Serves files from `iterm2_claude_cockpit/webview/`. Used by the panel for `app.js`, `styles.css`, etc.
 
 ### `GET /static/ext/<name>/<path>`
 

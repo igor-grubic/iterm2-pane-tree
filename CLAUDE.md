@@ -15,13 +15,13 @@ This file is the authoritative guide for AI agents (Claude Code and others) work
 iTerm2's Full Environment loader requires the folder name, inner package name, and entry script name to all match:
 
 ```
-iterm_workflow/          ← cloned/symlinked folder (must be named iterm_workflow)
+iterm2_claude_cockpit/          ← cloned/symlinked folder (must be named iterm2_claude_cockpit)
 ├── setup.cfg            ← required for Full Environment
-└── iterm_workflow/      ← Python package (must match folder name)
-    └── iterm_workflow.py ← entry point (must match package name)
+└── iterm2_claude_cockpit/      ← Python package (must match folder name)
+    └── iterm2_claude_cockpit.py ← entry point (must match package name)
 ```
 
-Never rename these, change the two-level structure, or remove `setup.cfg`. The repo name (`iterm2-claude-cockpit`) intentionally differs from the install name (`iterm_workflow`).
+Never rename these, change the two-level structure, or remove `setup.cfg`. The repo name (`iterm2-claude-cockpit`) intentionally differs from the install name (`iterm2_claude_cockpit`).
 
 ---
 
@@ -31,7 +31,7 @@ See `specs/architecture.md` for the full picture. Quick map:
 
 | Module | Role |
 |--------|------|
-| `iterm_workflow.py` | Daemon entry point; registers iTerm2 update hooks |
+| `iterm2_claude_cockpit.py` | Daemon entry point; registers iTerm2 update hooks |
 | `server/tree.py` | Builds the JSON snapshot (window → tab → pane) |
 | `server/http.py` | Serves the panel HTML and `/api/*` routes |
 | `server/actions.py` | Handles user actions: focus, create, close, bury |
@@ -51,9 +51,9 @@ See `specs/architecture.md` for the full picture. Quick map:
 - **No external runtime dependencies** — stdlib + the `iterm2` library only
 - Run before every commit:
   ```bash
-  ruff check iterm_workflow/
-  ruff format iterm_workflow/
-  mypy iterm_workflow/
+  ruff check iterm2_claude_cockpit/
+  ruff format iterm2_claude_cockpit/
+  mypy iterm2_claude_cockpit/
   ```
 
 ---
@@ -89,10 +89,10 @@ The Python version badge must reflect `requires-python` in `pyproject.toml`. Bot
 
 ## Extension authoring rules
 
-- Extensions live in `iterm_workflow/extensions/<name>/__init__.py`
+- Extensions live in `iterm2_claude_cockpit/extensions/<name>/__init__.py`
 - Must expose `register(api: ExtensionAPI) -> None`
 - Use `ext.<name>.<field>` namespace for all snapshot keys — never write top-level keys
-- Register in `iterm_workflow/extensions.json` to appear in `ext list`
+- Register in `iterm2_claude_cockpit/extensions.json` to appear in `ext list`
 - See `specs/extension-api.md` for the full v1 API contract
 - The `claude` extension is the canonical worked example
 
@@ -119,7 +119,7 @@ There are no automated integration tests — iTerm2's runtime environment cannot
 
 1. `ruff check` + `ruff format --check` (lint/format)
 2. `mypy` (type checking)
-3. YAML validation for `iterm_workflow/projects/*.yaml`
+3. YAML validation for `iterm2_claude_cockpit/projects/*.yaml`
 
 Manual testing: install via symlink (see CONTRIBUTING.md), run the daemon, exercise the feature in iTerm2.
 
@@ -144,7 +144,7 @@ When adding logic that doesn't depend on the iTerm2 runtime (e.g., parsing, data
 ## What NOT to do
 
 - Do not add external runtime dependencies (anything beyond `iterm2` and stdlib)
-- Do not rename `iterm_workflow/` or the inner package — the iTerm2 loader will break
+- Do not rename `iterm2_claude_cockpit/` or the inner package — the iTerm2 loader will break
 - Do not write top-level snapshot keys from an extension — use `ext.<name>.<field>`
 - Do not commit `iterm2env/` or anything under `iterm2env-*/` (gitignored for a reason)
 - Do not push directly to `main` — open a PR

@@ -28,7 +28,7 @@ from extensions._api import Registry
 
 from . import actions, tree
 
-log = logging.getLogger("iterm_workflow.http")
+log = logging.getLogger("iterm2_claude_cockpit.http")
 
 WEBVIEW_DIR = Path(__file__).resolve().parent.parent / "webview"
 _PLUGIN_VERSION = "0.1.0"  # keep in sync with __init__.py and pyproject.toml

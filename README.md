@@ -41,24 +41,24 @@ No separate Python installation needed — iTerm2 bundles its own runtime.
 
 ```bash
 git clone https://github.com/igor-grubic/iterm2-claude-cockpit.git \
-  "$HOME/Library/Application Support/iTerm2/Scripts/AutoLaunch/iterm_workflow"
+  "$HOME/Library/Application Support/iTerm2/Scripts/AutoLaunch/iterm2_claude_cockpit"
 ```
 
 **Option B — recommended for developers.** Clone anywhere and symlink:
 
 ```bash
-git clone https://github.com/igor-grubic/iterm2-claude-cockpit.git ~/code/iterm_workflow
-ln -s "$HOME/code/iterm_workflow" \
-  "$HOME/Library/Application Support/iTerm2/Scripts/AutoLaunch/iterm_workflow"
+git clone https://github.com/igor-grubic/iterm2-claude-cockpit.git ~/code/iterm2_claude_cockpit
+ln -s "$HOME/code/iterm2_claude_cockpit" \
+  "$HOME/Library/Application Support/iTerm2/Scripts/AutoLaunch/iterm2_claude_cockpit"
 ```
 
-> **Why `iterm_workflow`?** iTerm2's script loader requires the folder name, inner package name, and entry script name to all match. The repo is named `iterm2-claude-cockpit` but must be installed as `iterm_workflow`.
+> **Why `iterm2_claude_cockpit`?** iTerm2's script loader requires the folder name, inner package name, and entry script name to all match — and they must be valid Python identifiers (underscores, not hyphens). The distribution name is `iterm2-claude-cockpit` (hyphens); the install folder is `iterm2_claude_cockpit` (underscores).
 
 ### 3. Run once from the Scripts menu
 
-`Scripts → AutoLaunch → iterm_workflow → iterm_workflow.py`
+`Scripts → AutoLaunch → iterm2_claude_cockpit → iterm2_claude_cockpit.py`
 
-iTerm2 will download its bundled Python runtime and set up the environment automatically. This only happens on the first run.
+iTerm2 will install dependencies and create an `iterm2env/` virtual environment inside the script folder. **This step is required — autolaunch will not work until it has been completed at least once.** It only needs to happen once per installation.
 
 ### 4. Allow the API permission prompt
 
@@ -70,19 +70,19 @@ The Claude extension is enabled by default. Run its interactive installer to wir
 
 **Option A:**
 ```bash
-python3 "$HOME/Library/Application Support/iTerm2/Scripts/AutoLaunch/iterm_workflow/iterm_workflow/extensions/claude/hooks/install.py"
+python3 "$HOME/Library/Application Support/iTerm2/Scripts/AutoLaunch/iterm2_claude_cockpit/iterm2_claude_cockpit/extensions/claude/hooks/install.py"
 ```
 
 **Option B:**
 ```bash
-python3 ~/code/iterm_workflow/iterm_workflow/extensions/claude/hooks/install.py
+python3 ~/code/iterm2_claude_cockpit/iterm2_claude_cockpit/extensions/claude/hooks/install.py
 ```
 
 The installer explains every change, shows a before/after diff, and asks for confirmation before touching anything. It backs up your existing `~/.claude/settings.json` first.
 
 ### 6. Show the panel
 
-`View → Toolbelt → Show Toolbelt`, then right-click the toolbelt and tick **Worktree**.
+`View → Toolbelt → Show Toolbelt`, then right-click the toolbelt and tick **Claude Cockpit**.
 
 iTerm2 remembers both settings, so this is a one-time step.
 
@@ -96,35 +96,54 @@ This is per-profile — repeat for any profile you use. Takes effect on the next
 
 **Option A:**
 ```bash
-cd "$HOME/Library/Application Support/iTerm2/Scripts/AutoLaunch/iterm_workflow" && git pull
+cd "$HOME/Library/Application Support/iTerm2/Scripts/AutoLaunch/iterm2_claude_cockpit" && git pull
 ```
 
 **Option B:**
 ```bash
-cd ~/code/iterm_workflow && git pull
+cd ~/code/iterm2_claude_cockpit && git pull
 ```
 
-Then re-run from `Scripts → AutoLaunch → iterm_workflow → iterm_workflow.py`, or restart iTerm2.
+Then re-run from `Scripts → AutoLaunch → iterm2_claude_cockpit → iterm2_claude_cockpit.py`, or restart iTerm2.
 
 ### Uninstalling
 
+**Option A (cloned directly):**
 ```bash
-rm "$HOME/Library/Application Support/iTerm2/Scripts/AutoLaunch/iterm_workflow"
+rm -rf "$HOME/Library/Application Support/iTerm2/Scripts/AutoLaunch/iterm2_claude_cockpit"
 ```
+
+**Option B (symlinked):**
+```bash
+rm "$HOME/Library/Application Support/iTerm2/Scripts/AutoLaunch/iterm2_claude_cockpit"
+# optionally also remove the repo:
+rm -rf ~/code/iterm2_claude_cockpit
+```
+
+### Migrating from `iterm_workflow`
+
+If you installed before this rename, remove the old entry and re-clone:
+
+```bash
+rm -rf "$HOME/Library/Application Support/iTerm2/Scripts/AutoLaunch/iterm_workflow"
+# then follow the installation steps above with the new iterm2_claude_cockpit name
+```
+
+Also remove the old toolbelt entry from iTerm2's Toolbelt menu: right-click the toolbelt and untick **Worktree** (if present), then re-enable **Claude Cockpit** after re-running step 3.
 
 ## Project layouts
 
-Define a named set of tabs in `iterm_workflow/projects/example.yaml` and open them from the panel. See [`iterm_workflow/projects/example.yaml`](iterm_workflow/projects/example.yaml) for the format.
+Define a named set of tabs in `iterm2_claude_cockpit/projects/example.yaml` and open them from the panel. See [`iterm2_claude_cockpit/projects/example.yaml`](iterm2_claude_cockpit/projects/example.yaml) for the format.
 
 ## Extensions
 
-The core panel is a generic worktree manager. Anything Claude-specific (or other "goodies") lives in opt-in extensions under `iterm_workflow/extensions/`.
+The core panel is a generic pane manager. Anything Claude-specific (or other "goodies") lives in opt-in extensions under `iterm2_claude_cockpit/extensions/`.
 
 ```bash
 # from the repo / install root:
-python3 -m iterm_workflow ext list
-python3 -m iterm_workflow ext enable claude
-python3 -m iterm_workflow ext disable claude
+python3 -m iterm2_claude_cockpit ext list
+python3 -m iterm2_claude_cockpit ext enable claude
+python3 -m iterm2_claude_cockpit ext disable claude
 ```
 
 After enabling or disabling, restart iTerm2 — the toolbelt webview is loaded once on startup and does not hot-reload.
@@ -138,7 +157,7 @@ After enabling or disabling, restart iTerm2 — the toolbelt webview is loaded o
 For accurate `running` / `idle` / `attention` states, run the interactive installer once:
 
 ```bash
-python3 /path/to/iterm_workflow/extensions/claude/hooks/install.py
+python3 /path/to/iterm2_claude_cockpit/extensions/claude/hooks/install.py
 ```
 
 The installer explains every change it will make, shows before/after for each hook entry, and asks for confirmation before touching anything. It writes a `.bak` of your existing `~/.claude/settings.json` before modifying it.
@@ -150,13 +169,13 @@ The installer explains every change it will make, shows before/after for each ho
 {
   "hooks": {
     "UserPromptSubmit": [
-      {"hooks": [{"type": "command", "command": "/path/to/iterm_workflow/extensions/claude/hooks/notify.sh running"}]}
+      {"hooks": [{"type": "command", "command": "/path/to/iterm2_claude_cockpit/extensions/claude/hooks/notify.sh running"}]}
     ],
     "Stop": [
-      {"hooks": [{"type": "command", "command": "/path/to/iterm_workflow/extensions/claude/hooks/notify.sh idle"}]}
+      {"hooks": [{"type": "command", "command": "/path/to/iterm2_claude_cockpit/extensions/claude/hooks/notify.sh idle"}]}
     ],
     "Notification": [
-      {"hooks": [{"type": "command", "command": "/path/to/iterm_workflow/extensions/claude/hooks/notify.sh attention"}]}
+      {"hooks": [{"type": "command", "command": "/path/to/iterm2_claude_cockpit/extensions/claude/hooks/notify.sh attention"}]}
     ]
   }
 }
@@ -166,14 +185,14 @@ The installer explains every change it will make, shows before/after for each ho
 To remove the hooks later:
 
 ```bash
-python3 /path/to/iterm_workflow/extensions/claude/hooks/uninstall.py
+python3 /path/to/iterm2_claude_cockpit/extensions/claude/hooks/uninstall.py
 ```
 
 Without hooks, panes where `claude` is the foreground process still show as active (amber) but state will default to `running` throughout the session.
 
 ### Authoring an extension
 
-Create `iterm_workflow/extensions/<name>/__init__.py` exposing `register(api)`. The API (v1) lets you:
+Create `iterm2_claude_cockpit/extensions/<name>/__init__.py` exposing `register(api)`. The API (v1) lets you:
 
 - `api.add_session_enricher(fn)` — add fields to each session node before serialization. `fn(session, node, ps_output, screen_lines, signals=None)` may be sync or async; return a dict to merge or mutate `node` in place. Use the `ext.<name>.<field>` namespace for new keys.
 - `api.add_signal_dir_source(name, directory)` — register a directory of TTY-keyed JSON signal files written by in-pane hook scripts; the parsed payloads are passed to enrichers via the `signals` kwarg.
@@ -188,7 +207,7 @@ The webview exposes a small registry on `window.PaneTreeExt`:
 - `paneTitleDecorators: ((label, node) => void)[]`
 - `shouldShowJob: ((node) => boolean)[]` — return false to hide the job badge for a pane
 
-Extension JS is loaded after `app.js`, so the registry exists when your script runs. See `iterm_workflow/extensions/claude/` for a complete example.
+Extension JS is loaded after `app.js`, so the registry exists when your script runs. See `iterm2_claude_cockpit/extensions/claude/` for a complete example.
 
 ## Troubleshooting
 
@@ -200,19 +219,35 @@ Extension JS is loaded after `app.js`, so the registry exists when your script r
 
 ### The panel is blank / shows "connecting…"
 
-The daemon isn't running. Check the console for errors, then re-run the script from `Scripts → AutoLaunch → iterm_workflow → iterm_workflow.py`.
+The daemon isn't running. Check the console for errors, then re-run the script from `Scripts → AutoLaunch → iterm2_claude_cockpit → iterm2_claude_cockpit.py`.
 
 ---
 
 ### AutoLaunch never started the script — no permission prompt appeared
 
-The venv doesn't exist yet. Run the script once manually from `Scripts → AutoLaunch → iterm_workflow → iterm_workflow.py`. iTerm2 will build the environment on first run.
+The `iterm2env/` virtual environment inside the script folder hasn't been created yet. iTerm2 requires it before it will autolaunch.
+
+Run the script once manually:
+
+`Scripts → AutoLaunch → iterm2_claude_cockpit → iterm2_claude_cockpit.py`
+
+iTerm2 installs dependencies and creates `iterm2env/` on this first run. After that, autolaunch works on every subsequent iTerm2 start.
+
+To verify the environment was created, check that this directory exists:
+
+```bash
+ls "$HOME/Library/Application Support/iTerm2/Scripts/AutoLaunch/iterm2_claude_cockpit/iterm2env"
+# or for Option B:
+ls ~/code/iterm2_claude_cockpit/iterm2env
+```
+
+If it doesn't exist after running manually, check the console (`Scripts → Manage → Console`) for errors.
 
 ---
 
 ### The Scripts menu shows nothing / the folder doesn't appear
 
-The folder name must match the `.py` filename exactly, and both must be valid Python identifiers (underscores, not hyphens). If you renamed the folder, rename it back to `iterm_workflow`.
+The folder name must match the `.py` filename exactly, and both must be valid Python identifiers (underscores, not hyphens). If you renamed the folder, rename it back to `iterm2_claude_cockpit`.
 
 ---
 
@@ -221,10 +256,10 @@ The folder name must match the `.py` filename exactly, and both must be valid Py
 The script is running as a Basic (shared) environment rather than Full Environment. This happens when the two-level folder structure or `setup.cfg` is missing. Make sure the layout is:
 
 ```
-iterm_workflow/          ← the cloned/symlinked folder
+iterm2_claude_cockpit/          ← the cloned/symlinked folder
 ├── setup.cfg
-└── iterm_workflow/
-    └── iterm_workflow.py
+└── iterm2_claude_cockpit/
+    └── iterm2_claude_cockpit.py
 ```
 
 ---

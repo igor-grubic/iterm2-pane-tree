@@ -14,7 +14,7 @@ import iterm2
 if TYPE_CHECKING:
     from extensions._api import Registry
 
-log = logging.getLogger("iterm_workflow.tree")
+log = logging.getLogger("iterm2_claude_cockpit.tree")
 
 
 async def _get_var(obj, name: str) -> str | None:
