@@ -165,6 +165,46 @@ window.PaneTreeExt = window.PaneTreeExt || {
     editBtn.title = "Rename tab";
     editBtn.addEventListener("click", (ev) => { ev.stopPropagation(); startTabEdit(row, t); });
     row.appendChild(editBtn);
+
+    row.draggable = true;
+    row.addEventListener("dragstart", (ev) => {
+      dragTabId = t.id;
+      dragWindowId = (findWindowForTab(t.id) || {}).id || null;
+      ev.dataTransfer.effectAllowed = "move";
+      ev.dataTransfer.setData("text/plain", t.id);
+      row.classList.add("dragging");
+      isDragging = true;
+    });
+    row.addEventListener("dragend", () => {
+      row.classList.remove("dragging");
+      document.querySelectorAll(".node.tab.drag-over").forEach(el => el.classList.remove("drag-over"));
+      isDragging = false;
+      dragTabId = null;
+      dragWindowId = null;
+    });
+    row.addEventListener("dragover", (ev) => {
+      if (!dragTabId || dragTabId === t.id) return;
+      ev.preventDefault();
+      ev.dataTransfer.dropEffect = "move";
+      row.classList.add("drag-over");
+    });
+    row.addEventListener("dragleave", (ev) => {
+      if (row.contains(ev.relatedTarget)) return;
+      row.classList.remove("drag-over");
+    });
+    row.addEventListener("drop", async (ev) => {
+      ev.preventDefault();
+      row.classList.remove("drag-over");
+      if (!dragTabId || dragTabId === t.id) return;
+      const srcTabId = dragTabId;
+      const srcWindowId = dragWindowId;
+      const targetWin = findWindowForTab(t.id);
+      if (!targetWin || srcWindowId !== targetWin.id) return;
+      const position = (targetWin.tabs || []).findIndex(tab => tab.id === t.id);
+      if (position === -1) return;
+      await postAction("/api/move-tab", { tab_id: srcTabId, window_id: srcWindowId, position });
+    });
+
     wrap.appendChild(row);
     if (!tIsCollapsed && (t.panes || []).length > 0) {
       for (const p of t.panes) {
@@ -568,6 +608,16 @@ window.PaneTreeExt = window.PaneTreeExt || {
   let lastSnapshot = null;
   let lastSnapshotJson = "";
   let consecutiveFailures = 0;
+  let isDragging = false;
+  let dragTabId = null;
+  let dragWindowId = null;
+
+  function findWindowForTab(tabId) {
+    for (const w of lastSnapshot?.windows || []) {
+      if ((w.tabs || []).some(t => t.id === tabId)) return w;
+    }
+    return null;
+  }
 
   async function pollOnce() {
     try {
@@ -580,7 +630,7 @@ window.PaneTreeExt = window.PaneTreeExt || {
       if (json !== lastSnapshotJson) {
         lastSnapshotJson = json;
         lastSnapshot = data;
-        if (!document.querySelector(".tab-edit-input")) {
+        if (!document.querySelector(".tab-edit-input") && !isDragging) {
           renderTree(lastSnapshot);
         }
       }

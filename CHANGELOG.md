@@ -16,6 +16,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `tty` field on session snapshot nodes — the controlling TTY path (e.g. `/dev/ttys003`).
 - Hook script `iterm_workflow/extensions/claude/hooks/notify.sh` — wire up as a Claude Code `UserPromptSubmit`/`Stop`/`Notification` hook for accurate per-pane status (see README).
 
+- Drag-and-drop tab reordering: drag a tab row in the panel to reorder it within its window. The new order is applied in iTerm2 via `POST /api/move-tab`.
+
 ### Changed
 - Renamed the repository from `iterm2-pane-tree` to `iterm2-claude-cockpit` to better reflect its primary use case: orchestrating many parallel Claude Code panes from the iTerm2 toolbelt. Existing clones continue to work via GitHub's automatic redirect; the install path (`…/AutoLaunch/iterm_workflow`) is unchanged.
 - Cheatsheet buttons (iTerm and Claude) are now compact icon buttons (glyph + label) on a single shared row, reducing footer height.
