@@ -21,14 +21,44 @@ case "$state" in
     *) exit 0 ;;
 esac
 
-# Drain stdin: Claude Code pipes the hook payload here; discard it so the
-# parent process doesn't get a broken-pipe error.
-cat > /dev/null
+# Read stdin: Claude Code pipes the hook payload here.
+stdin_payload=$(cat)
 
-# Discover controlling TTY. Stdin is consumed above, so we probe stderr.
+# The Notification hook fires for two situations; only permission_prompt
+# means Claude is genuinely blocked and needs user action. idle_prompt fires
+# when Claude finishes a turn and sits idle — treat that as idle, not attention.
+if [ "$state" = "attention" ]; then
+    notif_type=$(printf '%s' "$stdin_payload" | sed 's/.*"notification_type":"\([^"]*\)".*/\1/')
+    if [ "$notif_type" = "idle_prompt" ]; then
+        state="idle"
+    fi
+fi
+
+ts=$(date +%s)
+
+# Primary: use ITERM_SESSION_ID if available — works in daemon mode where
+# there is no controlling TTY.
+session_guid=""
+raw_guid=$(printf '%s' "${ITERM_SESSION_ID:-}" | sed 's/.*://')
+case "$raw_guid" in
+    "") ;;
+    *[!0-9A-Za-z-]*) ;;  # contains invalid chars — reject
+    *) session_guid="$raw_guid" ;;
+esac
+
+if [ -n "$session_guid" ]; then
+    mkdir -p "$out_dir"
+    json="{\"session\":\"$session_guid\",\"state\":\"$state\",\"ts\":$ts}"
+    tmp="$out_dir/$session_guid.json.tmp.$$"
+    printf '%s' "$json" > "$tmp" && mv -f "$tmp" "$out_dir/$session_guid.json"
+    exit 0
+fi
+
+# Fallback: discover controlling TTY (inline / non-daemon mode).
+# Stdin is consumed above, so we probe stderr.
 tty_path=$(tty <&2 2>/dev/null)
 if [ -z "$tty_path" ] || [ "$tty_path" = "not a tty" ]; then
-    # Fallback: ask ps for the TTY of the parent (the Claude CLI process).
+    # Ask ps for the TTY of the parent (the Claude CLI process).
     raw=$(ps -p "$PPID" -o tty= 2>/dev/null | tr -d ' ')
     if [ -n "$raw" ] && [ "$raw" != "??" ]; then
         tty_path="/dev/$raw"
@@ -46,7 +76,6 @@ esac
 tty_base=$(basename "$tty_path")
 mkdir -p "$out_dir"
 
-ts=$(date +%s)
 json="{\"tty\":\"$tty_path\",\"state\":\"$state\",\"ts\":$ts}"
 
 # Atomic write: write to a temp file then rename to avoid partial reads.
