@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 - Claude status icons now work when Claude Code runs in background daemon mode; hook signals are keyed by `ITERM_SESSION_ID` (session GUID) instead of TTY process list, which is unavailable to detached daemons.
+- `❗` no longer appears on fresh Claude sessions; `Notification` hooks with `notification_type: idle_prompt` are now treated as idle rather than attention.
 
 ### Changed
 - Renamed the repository from `iterm2-pane-tree` to `iterm2-claude-cockpit` to better reflect its primary use case: orchestrating many parallel Claude Code panes from the iTerm2 toolbelt. Existing clones continue to work via GitHub's automatic redirect; the install path (`…/AutoLaunch/iterm_workflow`) is unchanged.

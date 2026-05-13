@@ -22,12 +22,16 @@ case "$state" in
 esac
 
 # Read stdin: Claude Code pipes the hook payload here.
-# Save it for diagnostics when state=attention, then discard.
 stdin_payload=$(cat)
+
+# The Notification hook fires for two situations; only permission_prompt
+# means Claude is genuinely blocked and needs user action. idle_prompt fires
+# when Claude finishes a turn and sits idle — treat that as idle, not attention.
 if [ "$state" = "attention" ]; then
-    printf '[%s] ITERM_SESSION_ID=%s payload=%s\n' \
-        "$(date '+%H:%M:%S')" "${ITERM_SESSION_ID:-}" "$stdin_payload" \
-        >> /tmp/notify-attention.log 2>/dev/null
+    notif_type=$(printf '%s' "$stdin_payload" | sed 's/.*"notification_type":"\([^"]*\)".*/\1/')
+    if [ "$notif_type" = "idle_prompt" ]; then
+        state="idle"
+    fi
 fi
 
 ts=$(date +%s)
