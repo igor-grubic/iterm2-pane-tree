@@ -47,9 +47,29 @@ async def detect(
     screen_lines: list[str],
     signals: dict | None = None,
 ) -> dict:
-    """Session enricher: classify Claude state from TTY process check + hook signals."""
+    """Session enricher: classify Claude state from hook signals or TTY process check.
+
+    Primary path (Claude Code daemon mode): looks for a signal file keyed by
+    the iTerm2 session GUID (node["id"]), written by notify.sh using the
+    ITERM_SESSION_ID env var that the daemon inherits from the launching shell.
+
+    Fallback (inline / older Claude Code): checks ps output for a claude/claude-code
+    process attached to the pane's TTY, then reads any TTY-keyed signal file.
+    """
     tty = node.get("tty") or ""
-    active = _claude_attached_to_tty(tty, ps_output)
+    session_id = node.get("id", "")
+    all_signals: dict = (signals or {}).get("claude", {})
+
+    # Primary: session-GUID signal (works when Claude runs as a background daemon).
+    sig = all_signals.get(session_id, {})
+    if sig:
+        active = sig.get("state") != "idle"
+    else:
+        # Fallback: ps-based TTY check (inline mode where Claude attaches to TTY).
+        active = _claude_attached_to_tty(tty, ps_output)
+        if active:
+            tty_base = Path(tty).name if tty else ""
+            sig = all_signals.get(tty_base, {})
 
     if not active:
         return {
@@ -58,9 +78,6 @@ async def detect(
             "ext.claude.action_needed": False,
         }
 
-    # Read state from hook signal file (keyed by TTY basename).
-    tty_base = Path(tty).name if tty else ""
-    sig = (signals or {}).get("claude", {}).get(tty_base, {})
     state = sig.get("state", "running")  # default: active but no signal yet → running
 
     # Narrow screen-scrape fallback for plan-mode (hooks don't cover it).

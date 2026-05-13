@@ -21,14 +21,40 @@ case "$state" in
     *) exit 0 ;;
 esac
 
-# Drain stdin: Claude Code pipes the hook payload here; discard it so the
-# parent process doesn't get a broken-pipe error.
-cat > /dev/null
+# Read stdin: Claude Code pipes the hook payload here.
+# Save it for diagnostics when state=attention, then discard.
+stdin_payload=$(cat)
+if [ "$state" = "attention" ]; then
+    printf '[%s] ITERM_SESSION_ID=%s payload=%s\n' \
+        "$(date '+%H:%M:%S')" "${ITERM_SESSION_ID:-}" "$stdin_payload" \
+        >> /tmp/notify-attention.log 2>/dev/null
+fi
 
-# Discover controlling TTY. Stdin is consumed above, so we probe stderr.
+ts=$(date +%s)
+
+# Primary: use ITERM_SESSION_ID if available — works in daemon mode where
+# there is no controlling TTY.
+session_guid=""
+raw_guid=$(printf '%s' "${ITERM_SESSION_ID:-}" | sed 's/.*://')
+case "$raw_guid" in
+    "") ;;
+    *[!0-9A-Za-z-]*) ;;  # contains invalid chars — reject
+    *) session_guid="$raw_guid" ;;
+esac
+
+if [ -n "$session_guid" ]; then
+    mkdir -p "$out_dir"
+    json="{\"session\":\"$session_guid\",\"state\":\"$state\",\"ts\":$ts}"
+    tmp="$out_dir/$session_guid.json.tmp.$$"
+    printf '%s' "$json" > "$tmp" && mv -f "$tmp" "$out_dir/$session_guid.json"
+    exit 0
+fi
+
+# Fallback: discover controlling TTY (inline / non-daemon mode).
+# Stdin is consumed above, so we probe stderr.
 tty_path=$(tty <&2 2>/dev/null)
 if [ -z "$tty_path" ] || [ "$tty_path" = "not a tty" ]; then
-    # Fallback: ask ps for the TTY of the parent (the Claude CLI process).
+    # Ask ps for the TTY of the parent (the Claude CLI process).
     raw=$(ps -p "$PPID" -o tty= 2>/dev/null | tr -d ' ')
     if [ -n "$raw" ] && [ "$raw" != "??" ]; then
         tty_path="/dev/$raw"
@@ -46,7 +72,6 @@ esac
 tty_base=$(basename "$tty_path")
 mkdir -p "$out_dir"
 
-ts=$(date +%s)
 json="{\"tty\":\"$tty_path\",\"state\":\"$state\",\"ts\":$ts}"
 
 # Atomic write: write to a temp file then rename to avoid partial reads.
