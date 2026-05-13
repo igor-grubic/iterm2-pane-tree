@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Fixed
+- Installation docs: clarified that Option B's clone destination must be named `iterm_workflow` (not an arbitrary path) or autolaunch silently fails.
+- Installation docs: step 3 "run once" now explains that it creates the required `iterm2env/` virtual environment — autolaunch won't work without it.
+- Troubleshooting: expanded the "AutoLaunch never started" entry with how to verify the environment exists and what to check if it doesn't.
+- Uninstall command: Option A (direct clone) now uses `rm -rf`; Option B (symlink) keeps `rm` but is listed separately.
+- `setup.cfg`: added `packages = find:` to prevent newer setuptools from failing with a "multiple top-level packages" error during environment setup.
+- `pyproject.toml`: fixed `license` field referencing a missing `LICENSE` file.
+
 ### Added
 - Settings button (⚙) in the footer icon row — opens a panel showing the plugin version and installed extensions (enabled and available-but-disabled).
 - Extension system: opt-in modules under `iterm_workflow/extensions/<name>/` with a small `register(api)` surface for snapshot enrichment, webview asset injection (CSS/JS), and HTTP route registration. Enable/disable with `python -m iterm_workflow ext enable|disable <name>`.

@@ -22,6 +22,14 @@ ln -s "$HOME/code/iterm_workflow" \
   "$HOME/Library/Application Support/iTerm2/Scripts/AutoLaunch/iterm_workflow"
 ```
 
+> The destination path `~/code/iterm_workflow` is required — the real directory name must be `iterm_workflow` to match the inner package and entry script. Cloning to a differently-named directory will cause autolaunch to silently fail.
+
+Then run the script once to initialize the environment:
+
+`Scripts → AutoLaunch → iterm_workflow → iterm_workflow.py`
+
+This creates `~/code/iterm_workflow/iterm2env/` (gitignored). AutoLaunch will work on every subsequent iTerm2 start.
+
 Install dev tools (these run on your local Python, not inside iTerm2's env):
 
 ```bash
